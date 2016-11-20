@@ -15,19 +15,16 @@ from brother_ql.devicedependent import models
 from brother_ql import BrotherQLRaster, create_label
 from brother_ql.backends import backend_factory, guess_backend
 
-MODEL = None
-BACKEND_CLASS = None
-BACKEND_STRING_DESCR = None
+from font_helpers import get_fonts
 
 logger = logging.getLogger(__name__)
 
-# globals:
 DEBUG = False
-
+MODEL = None
+BACKEND_CLASS = None
+BACKEND_STRING_DESCR = None
 FONTS = None
-
 DEFAULT_FONT = None
-
 DEFAULT_FONTS = [
   {'family': 'Minion Pro',      'style': 'Semibold'},
   {'family': 'Linux Libertine', 'style': 'Regular'},
@@ -41,43 +38,6 @@ def index():
     to print a label (replace `Your_Text` with your text).
     """
     return markdown.markdown(INDEX_MD)
-
-def get_fonts(folder=None):
-    """
-    Scan a folder (or the system) for .ttf / .otf fonts and
-    return a dictionary of the structure  family -> style -> file path
-    """
-    fonts = {}
-    if folder:
-        cmd = ['fc-scan', '--format', '"%{file}:%{family}:style=%{style}\n"', folder]
-    else:
-        cmd = ['fc-list', ':', 'file', 'family', 'style']
-    for line in subprocess.check_output(cmd).decode('utf-8').split("\n"):
-        logger.debug(line)
-        line.strip()
-        if not line: continue
-        if 'otf' not in line and 'ttf' not in line: continue
-        parts = line.split(':')
-        path = parts[0]
-        families = parts[1].strip().split(',')
-        styles = parts[2].split('=')[1].split(',')
-        if len(families) == 1 and len(styles) > 1:
-            families = [families[0]] * len(styles)
-        elif len(families) > 1 and len(styles) == 1:
-            styles = [styles[0]] * len(families)
-        if len(families) != len(styles):
-            if DEBUG:
-                print("Problem with this font:")
-                print(line)
-            continue
-        for i in range(len(families)):
-            try: fonts[families[i]]
-            except: fonts[families[i]] = dict()
-            fonts[families[i]][styles[i]] = path
-            if DEBUG:
-                print("Added this font:")
-                print(families[i], styles[i], path)
-    return fonts
 
 @route('/api/print/text')
 @route('/api/print/text/')
@@ -187,7 +147,7 @@ def main():
         sys.stderr.write('Could not find any of the default fonts')
         sys.exit()
 
-    run(host='', port=args.port, debug=args.loglevel==logging.DEBUG)
+    run(host='', port=args.port, debug=DEBUG)
 
 if __name__ == "__main__":
     main()
