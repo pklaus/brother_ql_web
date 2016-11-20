@@ -12,7 +12,7 @@ import numpy as np
 import markdown
 
 from brother_ql.devicedependent import models
-from brother_ql.raster import BrotherQLRaster
+from brother_ql import BrotherQLRaster, create_label
 from brother_ql.backends import backend_factory, guess_backend
 
 MODEL = None
@@ -100,6 +100,7 @@ def print_text(content=None):
 
     threshold = 170
     fontsize = int(request.query.get('font_size', 100))
+    label_size = "62"
     width = 720
     margin = 0
     height = 100 + 2*margin
@@ -128,31 +129,9 @@ def print_text(content=None):
     if DEBUG: print("Offset: {}".format(offset))
     draw.text(offset, content, (0), font=im_font)
     if DEBUG: im.save('sample-out.png')
-    arr = np.asarray(im, dtype=np.uint8)
-    arr.flags.writeable = True
-    white_idx = arr[:,:] <  threshold
-    black_idx = arr[:,:] >= threshold
-    arr[white_idx] = 1
-    arr[black_idx] = 0
 
     qlr = BrotherQLRaster(MODEL)
-    qlr.add_switch_mode()
-    qlr.add_invalidate()
-    qlr.add_initialize()
-    qlr.add_status_information()
-    qlr.mtype = 0x0A
-    qlr.mwidth = 62
-    qlr.mlength = 0
-    qlr.add_media_and_quality(im.size[1])
-    qlr.add_autocut(True)
-    qlr.add_cut_every(1)
-    qlr.dpi_600 = False
-    qlr.cut_at_end = True
-    qlr.add_expanded_mode()
-    qlr.add_margins()
-    qlr.add_compression(True)
-    qlr.add_raster_data(arr)
-    qlr.add_print()
+    create_label(qlr, im, label_size, threshold=threshold, cut=True)
 
     if not DEBUG:
         try:
