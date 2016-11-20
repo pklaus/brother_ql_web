@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 """
-This is a web server to print labels.
-
-Go to [/api/print/text/Your_Text](/api/print/text/)
-to print a label (replace Your_Text with your text).
+This is a web service to print labels on Brother QL label printers.
 """
 
 import sys, logging, socket, os, subprocess, functools
@@ -39,7 +36,11 @@ DEFAULT_FONTS = [
 
 @route('/')
 def index():
-    return markdown.markdown(__doc__)
+    INDEX_MD = __doc__ + """
+    Go to [/api/print/text/Your_Text](/api/print/text/)
+    to print a label (replace `Your_Text` with your text).
+    """
+    return markdown.markdown(INDEX_MD)
 
 def get_fonts(folder=None):
     """
@@ -172,7 +173,7 @@ def print_text(content=None):
 def main():
     global DEBUG, FONTS, DEFAULT_FONT, MODEL, BACKEND_CLASS, BACKEND_STRING_DESCR
     import argparse
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', default=8013)
     parser.add_argument('--loglevel', type=lambda x: getattr(logging, x.upper()), default='WARNING')
     parser.add_argument('--font-folder', help='folder for additional .ttf/.otf fonts')
