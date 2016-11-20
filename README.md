@@ -6,7 +6,23 @@ It offers:
 * an API at */api/print/text/Your_Text?font_size=100&font_family=Minion%20Pro&font_style=Semibold*
   to print a label containing 'Your Text' with the specified font properties.
 
-Here's its command line interface:
+You need Python 3 for this software to work.
+
+#### Installation
+
+Get the code:
+
+    git clone https://github.com/pklaus/brother_ql_web.git
+
+or download [the ZIP file](https://github.com/pklaus/brother_ql_web/archive/master.zip) and unpack it.
+
+Install the requirements:
+
+    pip install -r requirements.txt
+
+#### Usage
+
+To start the server, run `./brother_ql_web.py`. Here's its command line interface:
 
     usage: brother_ql_web.py [-h] [--port PORT] [--loglevel LOGLEVEL]
                              [--font-folder FONT_FOLDER]
