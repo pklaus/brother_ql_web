@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import logging
+import logging, subprocess
 
 logger = logging.getLogger(__name__)
 

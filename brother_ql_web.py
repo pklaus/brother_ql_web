@@ -4,14 +4,15 @@
 This is a web service to print labels on Brother QL label printers.
 """
 
-import sys, logging, socket, os, subprocess, functools
+import sys, logging, socket, os, functools, textwrap
+from io import BytesIO
 
 from bottle import run, route, response, request
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import markdown
 
-from brother_ql.devicedependent import models
+from brother_ql.devicedependent import models, label_type_specs
 from brother_ql import BrotherQLRaster, create_label
 from brother_ql.backends import backend_factory, guess_backend
 
@@ -33,11 +34,75 @@ DEFAULT_FONTS = [
 
 @route('/')
 def index():
-    INDEX_MD = __doc__ + """
+    INDEX_MD = __doc__ + textwrap.dedent("""
     Go to [/api/print/text/Your_Text](/api/print/text/)
     to print a label (replace `Your_Text` with your text).
-    """
+    """)
     return markdown.markdown(INDEX_MD)
+
+def get_label_context(request):
+    """ might raise LookupError() """
+
+    context = {
+      'font_size': int(request.query.get('font_size', 100)),
+      'font_family':   request.query.get('font_family'),
+      'font_style':    request.query.get('font_style'),
+      'label_size':    request.query.get('label_size', "62"),
+      'margin':    int(request.query.get('margin', 10)),
+      'threshold': int(request.query.get('threshold', 70)),
+    }
+
+    def get_font_path(font_family, font_style):
+        try:
+            if font_family is None:
+                font_family = DEFAULT_FONT['family']
+                font_style =  DEFAULT_FONT['style']
+            if font_style is None:
+                font_style =  'Regular'
+            font_path = FONTS[font_family][font_style]
+        except KeyError:
+            raise LookupError("Couln't find the font & style")
+        return font_path
+
+    context['font_path'] = get_font_path(context['font_family'], context['font_style'])
+
+    def get_label_dimensions(label_size):
+        try:
+            ls = label_type_specs[context['label_size']]
+        except KeyError:
+            raise LookupError("Unknown label_size")
+        return ls['dots_printable']
+
+    width, height = get_label_dimensions(context['label_size'])
+    if height == 0:
+        height = context['font_size'] + 2 * context['margin']
+    if height > width: width, height = height, width
+
+    context['width'], context['height'] = width, height
+
+    return context
+
+def create_label_im(text, **kwargs):
+    im = Image.new('L', (kwargs['width'], kwargs['height']), 'white')
+    draw = ImageDraw.Draw(im)
+    im_font = ImageFont.truetype(kwargs['font_path'], kwargs['font_size'])
+    textsize = draw.textsize(text, font=im_font)
+    vertical_offset = (kwargs['height'] - textsize[1])//2
+    horizontal_offset = max((kwargs['width'] - textsize[0])//2, 0)
+    if 'ttf' in kwargs['font_path']: vertical_offset -= 10
+    offset = horizontal_offset, vertical_offset
+    draw.text(offset, text, (0), font=im_font)
+    return im
+
+@route('/api/preview/text/<text>')
+def get_preview_image(text):
+    context = get_label_context(request)
+    image_buffer = BytesIO()
+    im = create_label_im(text, **context)
+    im.save(image_buffer, format="PNG")
+    image_buffer.seek(0)
+    response.set_header('Content-type', 'image/png')
+    return image_buffer.read()
 
 @route('/api/print/text')
 @route('/api/print/text/')
@@ -58,40 +123,17 @@ def print_text(content=None):
         return_dict['error'] = 'Please provide the text for the label'
         return return_dict
 
-    threshold = 170
-    fontsize = int(request.query.get('font_size', 100))
-    label_size = "62"
-    width = 720
-    margin = 0
-    height = 100 + 2*margin
-
     try:
-        font_family = request.query.get('font_family')
-        font_style  = request.query.get('font_style')
-        if font_family is None:
-            font_family = DEFAULT_FONT['family']
-            font_style =  DEFAULT_FONT['style']
-        if font_style is None:
-            font_style =  'Regular'
-        font_path = FONTS[font_family][font_style]
-    except KeyError:
-        return_dict['error'] = "Couln't find the font & style"
+        context = get_label_context(request)
+    except LookupError as e:
+        return_dict['error'] = e.msg
         return return_dict
 
-    im = Image.new('L', (width, height), 'white')
-    draw = ImageDraw.Draw(im)
-    im_font = ImageFont.truetype(font_path, fontsize)
-    textsize = draw.textsize(content, font=im_font)
-    vertical_offset = (height - textsize[1])//2
-    horizontal_offset = max((width - textsize[0])//2, 0)
-    if 'ttf' in font_path: vertical_offset -= 10
-    offset = horizontal_offset, vertical_offset
-    if DEBUG: print("Offset: {}".format(offset))
-    draw.text(offset, content, (0), font=im_font)
+    im = create_label_im(content, **context)
     if DEBUG: im.save('sample-out.png')
 
     qlr = BrotherQLRaster(MODEL)
-    create_label(qlr, im, label_size, threshold=threshold, cut=True)
+    create_label(qlr, im, context['label_size'], threshold=context['threshold'], cut=True)
 
     if not DEBUG:
         try:
