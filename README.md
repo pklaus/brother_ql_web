@@ -3,6 +3,7 @@
 This is a web service to print labels on Brother QL label printers.
 
 It offers:
+* a Web GUI allowing you to print your labels at */labeldesigner*,
 * an API at */api/print/text/Your_Text?font_size=100&font_family=Minion%20Pro&font_style=Semibold*
   to print a label containing 'Your Text' with the specified font properties.
 
@@ -18,6 +19,7 @@ or download [the ZIP file](https://github.com/pklaus/brother_ql_web/archive/mast
 
 Install the requirements:
 
+    pip install --upgrade https://github.com/pklaus/brother_ql/archive/master.zip
     pip install -r requirements.txt
 
 #### Usage
