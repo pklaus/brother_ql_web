@@ -1,0 +1,82 @@
+{% extends "base.jinja2" %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-4">
+      <fieldset class="form-group">
+        <label for="labelText">Label Text:</label>
+        <textarea rows="4" id="labelText" class="form-control" onChange="preview()" onInput="preview()"></textarea>
+        <label for="fontFamily">Font Selection:</label>
+        <select class="form-control" id="fontFamily" onChange="preview()">
+          {% for font in fonts %}<option>{{font}}</option> {% endfor %}
+        </select>
+        <label for="fontSize">Font Size:</label>
+        <input id="fontSize" type="text" name="quant[2]" class="form-control input-number" value="70" min="1" max="120" onChange="preview()">
+      </fieldset>
+    </div>
+    <div class="col-md-4">
+      <fieldset class="form-group">
+        <label for="previewImg">Label Preview:</label>
+        <img id="previewImg" src="/api/preview/text/%20" style="border: 1px solid #444; width: 90%; margin: 5%;"/>
+         <button type="button" class="btn btn-primary btn-block btn-lg" onClick="print()">Print</button>
+      </fieldset>
+    </div>
+  </div>
+{% endblock %}
+
+{% block page_headline %}
+  {{message}}
+{% endblock %}
+
+
+{% block javascript %}
+var text = $('#labelText');
+
+//text.oninput = function(){
+//var callcount = 0;
+//    var action = function(){
+//        alert('changed');
+//    }
+//    var delayAction = function(action, time){
+//        var expectcallcount = callcount;
+//        var delay = function(){
+//            if(callcount == expectcallcount){
+//                action();
+//            }
+//        }
+//        setTimeout(delay, time);
+//    }
+//    return function(eventtrigger){
+//        ++callcount;
+//        delayAction(action, 1200);
+//    }
+//}();
+
+function last_url_part() {
+  text =        $('#labelText').val().replace(/\n/g, "%0A");
+  font_family = $('#fontFamily option:selected').text();
+  font_size =   $('#fontSize').val();
+  if (text == '') text = '%20';
+  return text + '?font_family=' + font_family + '&font_size=' + font_size;
+}
+
+function preview() {
+  $('#previewImg').attr('src', '/api/preview/text/' + last_url_part() );
+}
+
+function print() {
+  $.ajax({
+    dataType: "json",
+    url: '/api/print/text/' + last_url_part(),
+    success: function( data ) {
+      console.log(data['success']);
+    }
+  });
+}
+
+
+
+
+{% endblock %}

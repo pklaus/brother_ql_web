@@ -7,7 +7,7 @@ This is a web service to print labels on Brother QL label printers.
 import sys, logging, socket, os, functools, textwrap
 from io import BytesIO
 
-from bottle import run, route, response, request
+from bottle import run, route, response, request, jinja2_view as view, static_file, redirect
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import markdown
@@ -34,11 +34,17 @@ DEFAULT_FONTS = [
 
 @route('/')
 def index():
-    INDEX_MD = __doc__ + textwrap.dedent("""
-    Go to [/api/print/text/Your_Text](/api/print/text/)
-    to print a label (replace `Your_Text` with your text).
-    """)
-    return markdown.markdown(INDEX_MD)
+    redirect('/labeldesigner')
+
+@route('/static/<filename:path>')
+def serve_static(filename):
+    return static_file(filename, root='./static')
+
+@route('/labeldesigner')
+@view('labeldesigner.jinja2')
+def labeldesigner():
+    fonts = sorted(list(FONTS.keys()))
+    return {'title': 'Labeldesigner', 'message': '', 'fonts': fonts}
 
 def get_label_context(request):
     """ might raise LookupError() """
@@ -83,15 +89,17 @@ def get_label_context(request):
     return context
 
 def create_label_im(text, **kwargs):
-    im = Image.new('L', (kwargs['width'], kwargs['height']), 'white')
-    draw = ImageDraw.Draw(im)
     im_font = ImageFont.truetype(kwargs['font_path'], kwargs['font_size'])
-    textsize = draw.textsize(text, font=im_font)
-    vertical_offset = (kwargs['height'] - textsize[1])//2
+    textsize = im_font.getsize(text)
+    height = max(textsize[1] * (text.count('\n')+1), kwargs['height'])
+    im = Image.new('L', (kwargs['width'], height), 'white')
+    draw = ImageDraw.Draw(im)
+    textsize = draw.multiline_textsize(text, font=im_font)
+    vertical_offset = 0 #(height - textsize[1])//2
     horizontal_offset = max((kwargs['width'] - textsize[0])//2, 0)
     if 'ttf' in kwargs['font_path']: vertical_offset -= 10
     offset = horizontal_offset, vertical_offset
-    draw.text(offset, text, (0), font=im_font)
+    draw.multiline_text(offset, text, (0), font=im_font, align="center")
     return im
 
 @route('/api/preview/text/<text>')
