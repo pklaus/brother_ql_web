@@ -9,8 +9,6 @@ from io import BytesIO
 
 from bottle import run, route, response, request, jinja2_view as view, static_file, redirect
 from PIL import Image, ImageDraw, ImageFont
-import numpy as np
-import markdown
 
 from brother_ql.devicedependent import models, label_type_specs
 from brother_ql import BrotherQLRaster, create_label
