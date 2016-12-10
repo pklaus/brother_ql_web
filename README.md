@@ -19,7 +19,6 @@ or download [the ZIP file](https://github.com/pklaus/brother_ql_web/archive/mast
 
 Install the requirements:
 
-    pip install --upgrade https://github.com/pklaus/brother_ql/archive/master.zip
     pip install -r requirements.txt
 
 #### Usage
