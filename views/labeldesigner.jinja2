@@ -6,6 +6,7 @@
   <div class="row">
     <div class="col-md-4">
       <fieldset class="form-group">
+        <label for="labelSize">Label Size:</label>
         <select class="form-control" id="labelSize" onChange="preview()">
           {% for label_size in label_sizes %}<option value="{{label_size[0]}}">{{label_size[1]}}</option>{% endfor %}
         </select>

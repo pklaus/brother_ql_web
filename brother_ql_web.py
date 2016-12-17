@@ -106,7 +106,11 @@ def create_label_im(text, **kwargs):
     im = Image.new('L', (kwargs['width'], height), 'white')
     draw = ImageDraw.Draw(im)
     textsize = draw.multiline_textsize(text, font=im_font)
-    vertical_offset = 0 #(height - textsize[1])//2
+    if 'x' in kwargs['label_size']:
+        # die-cut labels
+        vertical_offset = (height - textsize[1])//2
+    else:
+        vertical_offset = 0
     horizontal_offset = max((kwargs['width'] - textsize[0])//2, 0)
     if 'ttf' in kwargs['font_path']: vertical_offset -= 10
     offset = horizontal_offset, vertical_offset
