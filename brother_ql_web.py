@@ -30,6 +30,14 @@ DEFAULT_FONTS = [
   {'family': 'DejaVu Serif',    'style': 'Book'},
 ]
 
+LABEL_SIZES = [
+  ('62',    '62mm endless'),
+  ('29x90', '29mm x 90mm die-cut'),
+  ('62x29', '62mm x 29mm die-cut'),
+  ('17x54', '17mm x 54mm die-cut'),
+  ('17x87', '17mm x 87mm die-cut'),
+]
+
 @route('/')
 def index():
     redirect('/labeldesigner')
@@ -42,7 +50,8 @@ def serve_static(filename):
 @view('labeldesigner.jinja2')
 def labeldesigner():
     fonts = sorted(list(FONTS.keys()))
-    return {'title': 'Labeldesigner', 'message': '', 'fonts': fonts}
+    label_sizes = LABEL_SIZES
+    return {'title': 'Labeldesigner', 'message': '', 'fonts': fonts, 'label_sizes': label_sizes}
 
 def get_label_context(request):
     """ might raise LookupError() """
@@ -89,7 +98,11 @@ def get_label_context(request):
 def create_label_im(text, **kwargs):
     im_font = ImageFont.truetype(kwargs['font_path'], kwargs['font_size'])
     textsize = im_font.getsize(text)
-    height = max(textsize[1] * (text.count('\n')+1), kwargs['height'])
+    if 'x' in kwargs['label_size']:
+        # die-cut labels
+        height = kwargs['height']
+    else:
+        height = max(textsize[1] * (text.count('\n')+1), kwargs['height'])
     im = Image.new('L', (kwargs['width'], height), 'white')
     draw = ImageDraw.Draw(im)
     textsize = draw.multiline_textsize(text, font=im_font)

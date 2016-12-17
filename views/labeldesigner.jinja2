@@ -6,6 +6,9 @@
   <div class="row">
     <div class="col-md-4">
       <fieldset class="form-group">
+        <select class="form-control" id="labelSize" onChange="preview()">
+          {% for label_size in label_sizes %}<option value="{{label_size[0]}}">{{label_size[1]}}</option>{% endfor %}
+        </select>
         <label for="labelText">Label Text:</label>
         <textarea rows="4" id="labelText" class="form-control" onChange="preview()" onInput="preview()"></textarea>
         <label for="fontFamily">Font Selection:</label>
@@ -58,8 +61,9 @@ function last_url_part() {
   text =        $('#labelText').val().replace(/\n/g, "%0A");
   font_family = $('#fontFamily option:selected').text();
   font_size =   $('#fontSize').val();
+  label_size =   $('#labelSize option:selected').val();
   if (text == '') text = '%20';
-  return text + '?font_family=' + font_family + '&font_size=' + font_size;
+  return text + '?font_family=' + font_family + '&font_size=' + font_size + '&label_size=' + label_size;
 }
 
 function preview() {
