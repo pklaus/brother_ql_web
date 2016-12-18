@@ -12,8 +12,25 @@
     <title>{% block page_title %}{% endblock %} | Brother QL</title>
   </head>
   <body>
-    <h1>{% block page_headline %}{% endblock %}</h1>
-    {% block content %}{% endblock %}
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">{{page_headline}}</a>
+        </div>
+      </div>
+    </nav>
+    <div class="jumbotron">
+          <div class="container">
+            {% block jumbotron %}{% endblock %}
+          </div>
+    </div>
+    <div class="container">{% block content %}{% endblock %}</div>
 
     <!-- jQuery first, then Bootstrap JS. -->
     <script src="/static/js/jquery.min.js"></script>

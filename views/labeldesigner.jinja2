@@ -2,6 +2,12 @@
 
 {% block page_title %}{{ title }}{% endblock %}
 
+{% block jumbotron %}
+  <h1>{{page_headline}}</h1>
+  <p>Design your label and print it...</p>
+  <!--<p><a class="btn btn-primary btn-lg" href="#" role="button">History of printed labels</a></p>-->
+{% endblock %}
+
 {% block content %}
   <div class="row">
     <div class="col-md-4">
@@ -10,14 +16,18 @@
         <select class="form-control" id="labelSize" onChange="preview()">
           {% for label_size in label_sizes %}<option value="{{label_size[0]}}">{{label_size[1]}}</option>{% endfor %}
         </select>
-        <label for="labelText">Label Text:</label>
-        <textarea rows="4" id="labelText" class="form-control" onChange="preview()" onInput="preview()"></textarea>
-        <label for="fontFamily">Font Selection:</label>
+       <label for="fontFamily">Font Selection:</label>
         <select class="form-control" id="fontFamily" onChange="preview()">
           {% for font in fonts %}<option>{{font}}</option> {% endfor %}
         </select>
         <label for="fontSize">Font Size:</label>
         <input id="fontSize" type="text" name="quant[2]" class="form-control input-number" value="70" min="1" max="120" onChange="preview()">
+      </fieldset>
+    </div>
+    <div class="col-md-4">
+      <fieldset class="form-group">
+        <label for="labelText">Label Text:</label>
+        <textarea rows="7" id="labelText" class="form-control" onChange="preview()" onInput="preview()"></textarea>
       </fieldset>
     </div>
     <div class="col-md-4">
@@ -29,11 +39,6 @@
     </div>
   </div>
 {% endblock %}
-
-{% block page_headline %}
-  {{message}}
-{% endblock %}
-
 
 {% block javascript %}
 var text = $('#labelText');

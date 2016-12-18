@@ -51,7 +51,9 @@ def serve_static(filename):
 def labeldesigner():
     fonts = sorted(list(FONTS.keys()))
     label_sizes = LABEL_SIZES
-    return {'title': 'Labeldesigner', 'message': '', 'fonts': fonts, 'label_sizes': label_sizes}
+    title = 'Label Designer'
+    page_headline = 'Brother QL Label Designer'
+    return {'title': title, 'page_headline': page_headline, 'message': '', 'fonts': fonts, 'label_sizes': label_sizes}
 
 def get_label_context(request):
     """ might raise LookupError() """
