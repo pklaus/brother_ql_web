@@ -65,7 +65,10 @@ def get_label_context(request):
       'label_size':    request.query.get('label_size', "62"),
       'margin':    int(request.query.get('margin', 10)),
       'threshold': int(request.query.get('threshold', 70)),
+      'align':         request.query.get('align', 'center'),
     }
+    context['margin_top']    = int(context['font_size']*0.24)
+    context['margin_bottom'] = int(context['font_size']*0.45)
 
     def get_font_path(font_family, font_style):
         try:
@@ -99,24 +102,24 @@ def get_label_context(request):
 
 def create_label_im(text, **kwargs):
     im_font = ImageFont.truetype(kwargs['font_path'], kwargs['font_size'])
-    textsize = im_font.getsize(text)
-    if 'x' in kwargs['label_size']:
-        # die-cut labels
+    im = Image.new('L', (20, 20), 'white')
+    draw = ImageDraw.Draw(im)
+    linesize = im_font.getsize(text)
+    textsize = draw.multiline_textsize(text, font=im_font)
+    if 'x' in kwargs['label_size']: # die-cut labels
         height = kwargs['height']
     else:
-        height = max(textsize[1] * (text.count('\n')+1), kwargs['height'])
+        height = textsize[1] + kwargs['margin_top'] + kwargs['margin_bottom']
     im = Image.new('L', (kwargs['width'], height), 'white')
     draw = ImageDraw.Draw(im)
-    textsize = draw.multiline_textsize(text, font=im_font)
-    if 'x' in kwargs['label_size']:
-        # die-cut labels
-        vertical_offset = (height - textsize[1])//2
+    if 'x' in kwargs['label_size']: # die-cut labels
+        vertical_offset  = (height - textsize[1])//2
+        vertical_offset += (kwargs['margin_top'] - kwargs['margin_bottom'])//2
     else:
-        vertical_offset = 0
+        vertical_offset = kwargs['margin_top']
     horizontal_offset = max((kwargs['width'] - textsize[0])//2, 0)
-    if 'ttf' in kwargs['font_path']: vertical_offset -= 10
     offset = horizontal_offset, vertical_offset
-    draw.multiline_text(offset, text, (0), font=im_font, align="center")
+    draw.multiline_text(offset, text, (0), font=im_font, align=kwargs['align'])
     return im
 
 @route('/api/preview/text/<text>')
