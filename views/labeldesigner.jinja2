@@ -41,6 +41,30 @@
               </select>
               <label for="fontSize" >Font Size:</label>
               <input id="fontSize" class="form-control" type="number" min="1" value="70" max="150" onChange="preview()">
+              <label for="fontAlign" class="control-label input-group">Font Alignment:</label>
+              <div class="btn-group" data-toggle="buttons">
+                  <label class="btn btn-default">
+                      <input type="radio" name="fontAlign" onchange="preview()" value="left" aria-label="Left Align"><span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>
+                  </label>
+                  <label class="btn btn-default active">
+                      <input type="radio" name="fontAlign" onchange="preview()" value="center" aria-label="Center Align" checked=""><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
+                  </label>
+                  <label class="btn btn-default">
+                      <input type="radio" name="fontAlign" onchange="preview()" value="right" aria-label="Right Align"><span class="glyphicon glyphicon-align-right" aria-hidden="true"></span>
+                  </label>
+              </div>
+
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
+                Detailed Settings</a>
+              </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse">
+              <div class="panel-body">Some more settings will show here, once implemented.</div>
             </div>
           </div>
         </div>
@@ -89,9 +113,10 @@ function last_url_part() {
   text =        $('#labelText').val().replace(/\n/g, "%0A");
   font_family = $('#fontFamily option:selected').text();
   font_size =   $('#fontSize').val();
-  label_size =   $('#labelSize option:selected').val();
+  label_size =  $('#labelSize option:selected').val();
+  align =       $('input[name=fontAlign]:checked').val();
   if (text == '') text = '%20';
-  return text + '?font_family=' + font_family + '&font_size=' + font_size + '&label_size=' + label_size;
+  return text + '?font_family=' + font_family + '&font_size=' + font_size + '&label_size=' + label_size + '&align=' + align;
 }
 
 function preview() {
