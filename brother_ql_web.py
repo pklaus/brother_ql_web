@@ -10,7 +10,8 @@ from io import BytesIO
 from bottle import run, route, response, request, jinja2_view as view, static_file, redirect
 from PIL import Image, ImageDraw, ImageFont
 
-from brother_ql.devicedependent import models, label_type_specs
+from brother_ql.devicedependent import models, label_type_specs, label_sizes
+from brother_ql.devicedependent import ENDLESS_LABEL, DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL
 from brother_ql import BrotherQLRaster, create_label
 from brother_ql.backends import backend_factory, guess_backend
 
@@ -30,13 +31,7 @@ DEFAULT_FONTS = [
   {'family': 'DejaVu Serif',    'style': 'Book'},
 ]
 
-LABEL_SIZES = [
-  ('62',    '62mm endless'),
-  ('29x90', '29mm x 90mm die-cut'),
-  ('62x29', '62mm x 29mm die-cut'),
-  ('17x54', '17mm x 54mm die-cut'),
-  ('17x87', '17mm x 87mm die-cut'),
-]
+LABEL_SIZES = [ (name, label_type_specs[name]['name']) for name in label_sizes]
 
 @route('/')
 def index():
@@ -101,18 +96,19 @@ def get_label_context(request):
     return context
 
 def create_label_im(text, **kwargs):
+    label_type = label_type_specs[kwargs['label_size']]['kind']
     im_font = ImageFont.truetype(kwargs['font_path'], kwargs['font_size'])
     im = Image.new('L', (20, 20), 'white')
     draw = ImageDraw.Draw(im)
     linesize = im_font.getsize(text)
     textsize = draw.multiline_textsize(text, font=im_font)
-    if 'x' in kwargs['label_size']: # die-cut labels
+    if label_type in (DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL):
         height = kwargs['height']
     else:
         height = textsize[1] + kwargs['margin_top'] + kwargs['margin_bottom']
     im = Image.new('L', (kwargs['width'], height), 'white')
     draw = ImageDraw.Draw(im)
-    if 'x' in kwargs['label_size']: # die-cut labels
+    if label_type in (DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL):
         vertical_offset  = (height - textsize[1])//2
         vertical_offset += (kwargs['margin_top'] - kwargs['margin_bottom'])//2
     else:
