@@ -64,9 +64,11 @@ def get_label_context(request):
       'margin':    int(d.get('margin', 10)),
       'threshold': int(d.get('threshold', 70)),
       'align':         d.get('align', 'center'),
+      'margin_top':    float(d.get('margin_top',    0.24)),
+      'margin_bottom': float(d.get('margin_bottom', 0.45)),
     }
-    context['margin_top']    = int(context['font_size']*0.24)
-    context['margin_bottom'] = int(context['font_size']*0.45)
+    context['margin_top']    = int(context['font_size']*context['margin_top'])
+    context['margin_bottom'] = int(context['font_size']*context['margin_bottom'])
 
     def get_font_path(font_family, font_style):
         try:
