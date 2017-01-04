@@ -53,14 +53,17 @@ def labeldesigner():
 def get_label_context(request):
     """ might raise LookupError() """
 
+    d = request.params.decode() # UTF-8 decoded form data
+
     context = {
-      'font_size': int(request.query.get('font_size', 100)),
-      'font_family':   request.query.get('font_family'),
-      'font_style':    request.query.get('font_style'),
-      'label_size':    request.query.get('label_size', "62"),
-      'margin':    int(request.query.get('margin', 10)),
-      'threshold': int(request.query.get('threshold', 70)),
-      'align':         request.query.get('align', 'center'),
+      'text':          d.get('text', None),
+      'font_size': int(d.get('font_size', 100)),
+      'font_family':   d.get('font_family'),
+      'font_style':    d.get('font_style'),
+      'label_size':    d.get('label_size', "62"),
+      'margin':    int(d.get('margin', 10)),
+      'threshold': int(d.get('threshold', 70)),
+      'align':         d.get('align', 'center'),
     }
     context['margin_top']    = int(context['font_size']*0.24)
     context['margin_bottom'] = int(context['font_size']*0.45)
@@ -118,20 +121,29 @@ def create_label_im(text, **kwargs):
     draw.multiline_text(offset, text, (0), font=im_font, align=kwargs['align'])
     return im
 
-@route('/api/preview/text/<text>')
-def get_preview_image(text):
+@get('/api/preview/text')
+@post('/api/preview/text')
+def get_preview_image():
     context = get_label_context(request)
+    im = create_label_im(**context)
+    return_format = request.query.get('return_format', 'png')
+    if return_format == 'base64':
+        import base64
+        response.set_header('Content-type', 'text/plain')
+        return base64.b64encode(image_to_png_bytes(im))
+    else:
+        response.set_header('Content-type', 'image/png')
+        return image_to_png_bytes(im)
+
+def image_to_png_bytes(im):
     image_buffer = BytesIO()
-    im = create_label_im(text, **context)
     im.save(image_buffer, format="PNG")
     image_buffer.seek(0)
-    response.set_header('Content-type', 'image/png')
     return image_buffer.read()
 
-@route('/api/print/text')
-@route('/api/print/text/')
-@route('/api/print/text/<content>')
-def print_text(content=None):
+@post('/api/print/text')
+@get('/api/print/text')
+def print_text():
     """
     API to print a label
 
@@ -143,17 +155,17 @@ def print_text(content=None):
 
     return_dict = {'success': False}
 
-    if content is None:
-        return_dict['error'] = 'Please provide the text for the label'
-        return return_dict
-
     try:
         context = get_label_context(request)
     except LookupError as e:
         return_dict['error'] = e.msg
         return return_dict
 
-    im = create_label_im(content, **context)
+    if context['text'] is None:
+        return_dict['error'] = 'Please provide the text for the label'
+        return return_dict
+
+    im = create_label_im(**context)
     if DEBUG: im.save('sample-out.png')
 
     qlr = BrotherQLRaster(MODEL)
@@ -168,7 +180,6 @@ def print_text(content=None):
         except Exception as e:
             return_dict['message'] = str(e)
             logger.warning('Exception happened: %s', e)
-            response.status = 500
             return return_dict
 
     return_dict['success'] = True

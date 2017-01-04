@@ -79,9 +79,17 @@
     <div class="col-md-4">
       <fieldset class="form-group">
         <label for="previewImg">Label Preview:</label>
-        <img id="previewImg" src="/api/preview/text/%20" style="border: 1px solid #444; width: 90%; margin: 5%;"/>
+        <img id="previewImg" style="border: 1px solid #444; width: 90%; margin: 5%;"/>
          <button type="button" class="btn btn-primary btn-block btn-lg" onClick="print()">Print</button>
       </fieldset>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Status</h3>
+        </div>
+        <div id="statusPanel" class="panel-body">
+          - undefined -
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}
@@ -89,51 +97,49 @@
 {% block javascript %}
 var text = $('#labelText');
 
-//text.oninput = function(){
-//var callcount = 0;
-//    var action = function(){
-//        alert('changed');
-//    }
-//    var delayAction = function(action, time){
-//        var expectcallcount = callcount;
-//        var delay = function(){
-//            if(callcount == expectcallcount){
-//                action();
-//            }
-//        }
-//        setTimeout(delay, time);
-//    }
-//    return function(eventtrigger){
-//        ++callcount;
-//        delayAction(action, 1200);
-//    }
-//}();
-
-function last_url_part() {
-  text =        $('#labelText').val().replace(/\n/g, "%0A");
-  font_family = $('#fontFamily option:selected').text();
-  font_size =   $('#fontSize').val();
-  label_size =  $('#labelSize option:selected').val();
-  align =       $('input[name=fontAlign]:checked').val();
-  if (text == '') text = '%20';
-  return text + '?font_family=' + font_family + '&font_size=' + font_size + '&label_size=' + label_size + '&align=' + align;
+function formData() {
+  //var text = $('#labelText').val().replace(/\n/g, "%0A");
+  var text = $('#labelText').val();
+  if (text == '') text = ' ';
+  return {
+    text:        text,
+    font_family: $('#fontFamily option:selected').text(),
+    font_size:   $('#fontSize').val(),
+    label_size:  $('#labelSize option:selected').val(),
+    align:       $('input[name=fontAlign]:checked').val()
+  }
 }
 
 function preview() {
-  $('#previewImg').attr('src', '/api/preview/text/' + last_url_part() );
-}
-
-function print() {
   $.ajax({
-    dataType: "json",
-    url: '/api/print/text/' + last_url_part(),
+    type:        'POST',
+    url:         '/api/preview/text?return_format=base64',
+    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+    data:        formData(),
     success: function( data ) {
-      console.log(data['success']);
+      $('#previewImg').attr('src', 'data:image/png;base64,' + data);
     }
   });
 }
 
+function setStatus(data) {
+  if (data['success'])
+    $('#statusPanel').html('Printing was successful.');
+  else
+    $('#statusPanel').html('Printing was unsuccessful:<br />'+data['message']);
+}
 
+function print() {
+  $.ajax({
+    type:     'POST',
+    dataType: 'json',
+    data:     formData(),
+    url:      '/api/print/text',
+    success:  setStatus,
+    error:    setStatus
+  });
+}
 
+preview()
 
 {% endblock %}
