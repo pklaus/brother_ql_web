@@ -1,0 +1,13 @@
+#statusBox.alert {
+  margin-bottom: 0;
+}
+
+.alert .glyphicon{
+  display:table-cell;
+}
+
+.alert div,
+.alert span{
+  padding-left: 10px;
+  display:table-cell;
+}
