@@ -64,11 +64,16 @@ def get_label_context(request):
       'margin':    int(d.get('margin', 10)),
       'threshold': int(d.get('threshold', 70)),
       'align':         d.get('align', 'center'),
+      'orientation':   d.get('orientation', 'standard'),
       'margin_top':    float(d.get('margin_top',    0.24)),
       'margin_bottom': float(d.get('margin_bottom', 0.45)),
+      'margin_left':   float(d.get('margin_left',   0.35)),
+      'margin_right':  float(d.get('margin_right',  0.35)),
     }
     context['margin_top']    = int(context['font_size']*context['margin_top'])
     context['margin_bottom'] = int(context['font_size']*context['margin_bottom'])
+    context['margin_left']   = int(context['font_size']*context['margin_left'])
+    context['margin_right']  = int(context['font_size']*context['margin_right'])
 
     def get_font_path(font_family, font_style):
         try:
@@ -92,10 +97,8 @@ def get_label_context(request):
         return ls['dots_printable']
 
     width, height = get_label_dimensions(context['label_size'])
-    if height == 0:
-        height = context['font_size'] + 2 * context['margin']
     if height > width: width, height = height, width
-
+    if context['orientation'] == 'rotated': height, width = width, height
     context['width'], context['height'] = width, height
 
     return context
@@ -107,18 +110,29 @@ def create_label_im(text, **kwargs):
     draw = ImageDraw.Draw(im)
     linesize = im_font.getsize(text)
     textsize = draw.multiline_textsize(text, font=im_font)
-    if label_type in (DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL):
-        height = kwargs['height']
-    else:
-        height = textsize[1] + kwargs['margin_top'] + kwargs['margin_bottom']
-    im = Image.new('L', (kwargs['width'], height), 'white')
+    width, height = kwargs['width'], kwargs['height']
+    if kwargs['orientation'] == 'standard':
+        if label_type in (ENDLESS_LABEL,):
+            height = textsize[1] + kwargs['margin_top'] + kwargs['margin_bottom']
+    elif kwargs['orientation'] == 'rotated':
+        if label_type in (ENDLESS_LABEL,):
+            width = textsize[0] + kwargs['margin_left'] + kwargs['margin_right']
+    im = Image.new('L', (width, height), 'white')
     draw = ImageDraw.Draw(im)
-    if label_type in (DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL):
+    if kwargs['orientation'] == 'standard':
+        if label_type in (DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL):
+            vertical_offset  = (height - textsize[1])//2
+            vertical_offset += (kwargs['margin_top'] - kwargs['margin_bottom'])//2
+        else:
+            vertical_offset = kwargs['margin_top']
+        horizontal_offset = max((width - textsize[0])//2, 0)
+    elif kwargs['orientation'] == 'rotated':
         vertical_offset  = (height - textsize[1])//2
         vertical_offset += (kwargs['margin_top'] - kwargs['margin_bottom'])//2
-    else:
-        vertical_offset = kwargs['margin_top']
-    horizontal_offset = max((kwargs['width'] - textsize[0])//2, 0)
+        if label_type in (DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL):
+            horizontal_offset = max((width - textsize[0])//2, 0)
+        else:
+            horizontal_offset = kwargs['margin_left']
     offset = horizontal_offset, vertical_offset
     draw.multiline_text(offset, text, (0), font=im_font, align=kwargs['align'])
     return im
@@ -171,7 +185,8 @@ def print_text():
     if DEBUG: im.save('sample-out.png')
 
     qlr = BrotherQLRaster(MODEL)
-    create_label(qlr, im, context['label_size'], threshold=context['threshold'], cut=True)
+    rotate = 0 if context['orientation'] == 'standard' else 90
+    create_label(qlr, im, context['label_size'], threshold=context['threshold'], cut=True, rotate=rotate)
 
     if not DEBUG:
         try:
