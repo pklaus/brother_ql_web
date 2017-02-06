@@ -24,14 +24,14 @@
               <div class="chooser panel-body">
               <label for="labelSize" style="display: none">Label Size:</label>
               <select class="form-control" id="labelSize" onChange="preview()">
-                {% for label_size in label_sizes %}<option value="{{label_size[0]}}">{{label_size[1]}}</option>{% endfor %}
+                {% for label_size in label_sizes %}<option value="{{label_size[0]}}" {% if default_label_size == label_size[0] %}selected{% endif %}>{{label_size[1]}}</option>{% endfor %}
               </select>
               <label for="orientation" style="margin-top: 10px; margin-bottom: 0">Label Orientation:</label>
               <div class="radio" style="margin-top: 5px;">
-                <label><input type="radio" onchange="preview()" name="orientation" value="standard" checked>Standard</label>
+                <label><input type="radio" onchange="preview()" name="orientation" value="standard" {% if default_orientation == 'standard' %}checked{% endif %}>Standard</label>
               </div>
               <div class="radio">
-                <label><input type="radio" onchange="preview()" name="orientation" value="rotated">Rotated</label>
+                <label><input type="radio" onchange="preview()" name="orientation" value="rotated" {% if default_orientation == 'rotated' %}checked{% endif %}>Rotated</label>
               </div>
               </div> <!-- class="chooser panel-body" -->
             </div>

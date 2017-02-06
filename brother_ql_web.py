@@ -23,6 +23,8 @@ DEBUG = False
 MODEL = None
 BACKEND_CLASS = None
 BACKEND_STRING_DESCR = None
+DEFAULT_ORIENTATION = None
+DEFAULT_LABEL_SIZE = None
 FONTS = None
 DEFAULT_FONT = None
 DEFAULT_FONTS = [
@@ -48,7 +50,7 @@ def labeldesigner():
     label_sizes = LABEL_SIZES
     title = 'Label Designer'
     page_headline = 'Brother QL Label Designer'
-    return {'title': title, 'page_headline': page_headline, 'message': '', 'fonts': fonts, 'label_sizes': label_sizes}
+    return {'title': title, 'page_headline': page_headline, 'message': '', 'fonts': fonts, 'label_sizes': label_sizes, 'default_label_size': DEFAULT_LABEL_SIZE, 'default_orientation': DEFAULT_ORIENTATION}
 
 def get_label_context(request):
     """ might raise LookupError() """
@@ -204,12 +206,14 @@ def print_text():
     return return_dict
 
 def main():
-    global DEBUG, FONTS, DEFAULT_FONT, MODEL, BACKEND_CLASS, BACKEND_STRING_DESCR
+    global DEBUG, FONTS, DEFAULT_FONT, MODEL, BACKEND_CLASS, BACKEND_STRING_DESCR, DEFAULT_ORIENTATION, DEFAULT_LABEL_SIZE
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', default=8013)
     parser.add_argument('--loglevel', type=lambda x: getattr(logging, x.upper()), default='WARNING')
     parser.add_argument('--font-folder', help='folder for additional .ttf/.otf fonts')
+    parser.add_argument('--default-label-size', default="62", help='Label size inserted in your printer. Defaults to 62.')
+    parser.add_argument('--default-orientation', default="standard", choices=('standard', 'rotated'), help='Label orientation, defaults to "standard". To turn your text by 90°, state "rotated".')
     parser.add_argument('--model', default='QL-500', choices=models, help='The model of your printer (default: QL-500)')
     parser.add_argument('printer', help='String descriptor for the printer to use (like tcp://192.168.0.23:9100 or file:///dev/usb/lp0)')
     args = parser.parse_args()
@@ -225,6 +229,11 @@ def main():
     BACKEND_STRING_DESCR = args.printer
 
     MODEL = args.model
+
+    if args.default_label_size not in label_sizes:
+        parser.error("Invalid --default-label-size. Please choose on of the following:\n:" + " ".join(label_sizes))
+    DEFAULT_LABEL_SIZE  = args.default_label_size
+    DEFAULT_ORIENTATION = args.default_orientation
 
     FONTS = get_fonts()
     if args.font_folder:

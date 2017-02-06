@@ -27,8 +27,12 @@ To start the server, run `./brother_ql_web.py`. Here's its command line interfac
 
     usage: brother_ql_web.py [-h] [--port PORT] [--loglevel LOGLEVEL]
                              [--font-folder FONT_FOLDER]
+                             [--default-label-size DEFAULT_LABEL_SIZE]
+                             [--default-orientation {standard,rotated}]
                              [--model {QL-500,QL-550,QL-560,QL-570,QL-580N,QL-650TD,QL-700,QL-710W,QL-720NW,QL-1050,QL-1060N}]
                              printer
+    
+    This is a web service to print labels on Brother QL label printers.
     
     positional arguments:
       printer               String descriptor for the printer to use (like
@@ -40,5 +44,11 @@ To start the server, run `./brother_ql_web.py`. Here's its command line interfac
       --loglevel LOGLEVEL
       --font-folder FONT_FOLDER
                             folder for additional .ttf/.otf fonts
+      --default-label-size DEFAULT_LABEL_SIZE
+                            Label size inserted in your printer. Defaults to 62.
+      --default-orientation {standard,rotated}
+                            Label orientation, defaults to "standard". To turn
+                            your text by 90°, state "rotated".
       --model {QL-500,QL-550,QL-560,QL-570,QL-580N,QL-650TD,QL-700,QL-710W,QL-720NW,QL-1050,QL-1060N}
                             The model of your printer (default: QL-500)
+
