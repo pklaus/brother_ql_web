@@ -79,14 +79,21 @@
             <div id="collapse3" class="panel-collapse collapse">
               <div class="chooser panel-body">
               <label for="marginTop">Margin Top:</label>
-              <input id="marginTop" class="form-control" type="number" min="0" max="200" value="24" onChange="preview()" required>
+              <div class="input-group marginsTopBottom">
+                <input id="marginTop" class="form-control" type="number" min="0" max="200" value="24" onChange="preview()" required>    <span class="input-group-addon">%</span>
+              </div>
               <label for="marginBottom">Margin Bottom:</label>
-              <input id="marginBottom" class="form-control" type="number" min="0" max="200" value="45" onChange="preview()" required>
+              <div class="input-group marginsTopBottom">
+                <input id="marginBottom" class="form-control" type="number" min="0" max="200" value="45" onChange="preview()" required> <span class="input-group-addon">%</span>
+              </div>
               <label for="marginLeft">Margin Left:</label>
-              <input id="marginLeft" class="form-control" type="number" min="0" max="200" value="35" onChange="preview()" required>
+              <div class="input-group marginsLeftRight">
+                <input id="marginLeft" class="form-control" type="number" min="0" max="200" value="35" onChange="preview()" required>   <span class="input-group-addon">%</span>
+              </div>
               <label for="marginRight">Margin Right:</label>
-              <input id="marginRight" class="form-control" type="number" min="0" max="200" value="35" onChange="preview()" required>
-              (margins in % of font size)
+              <div class="input-group marginsLeftRight">
+                <input id="marginRight" class="form-control" type="number" min="0" max="200" value="35" onChange="preview()" required>  <span class="input-group-addon">%</span>
+              </div>
               </div> <!-- class="chooser panel-body" -->
             </div>
           </div>
@@ -142,18 +149,12 @@ function formData() {
 }
 
 function preview() {
-  // http://stackoverflow.com/a/16284355
-  // http://stackoverflow.com/a/7697455
   if ($('input[name=orientation]:checked').val() == 'standard') {
-    $('#marginTop').prop('disabled',   false).removeAttr('title');
-    $('#marginBottom').prop('disabled',false).removeAttr('title');
-    $('#marginLeft').prop('disabled',  true).prop('title',  'Only relevant if rotated orientation is selected.');
-    $('#marginRight').prop('disabled', true).prop('title',  'Only relevant if rotated orientation is selected.');
+    $('.marginsTopBottom').prop('disabled', false).removeAttr('title');
+    $('.marginsLeftRight').prop('disabled', true).prop('title',  'Only relevant if rotated orientation is selected.');
   } else {
-    $('#marginTop').prop('disabled',   true).prop('title',  'Only relevant if standard orientation is selected.');
-    $('#marginBottom').prop('disabled',true).prop('title',  'Only relevant if standard orientation is selected.');
-    $('#marginLeft').prop('disabled',  false).removeAttr('title');
-    $('#marginRight').prop('disabled', false).removeAttr('title');
+    $('.marginsTopBottom').prop('disabled', true).prop('title',  'Only relevant if standard orientation is selected.');
+    $('.marginsLeftRight').prop('disabled', false).removeAttr('title');
   }
   $.ajax({
     type:        'POST',
