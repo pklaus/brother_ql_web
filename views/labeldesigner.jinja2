@@ -41,7 +41,6 @@
               <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
                   <span class="glyphicon glyphicon-text-size" aria-hidden="true"></span>
-                  <!-- <span class="glyphicon glyphicon-text" aria-hidden="true"></span> -->
                   Font Settings
                 </a>
               </h4>
@@ -73,7 +72,9 @@
             <div class="panel-heading">
               <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
-                Detailed Settings</a>
+                  <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+                  Detailed Settings
+                </a>
               </h4>
             </div>
             <div id="collapse3" class="panel-collapse collapse">
@@ -117,7 +118,7 @@
       </fieldset>
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title">Status</h3>
+          <h3 class="panel-title"><span class="glyphicon glyphicon-console" aria-hidden="true" style="margin-right: 0.3em"></span> Status</h3>
         </div>
         <div id="statusPanel" class="panel-body">
           - undefined -
@@ -182,7 +183,7 @@ function setStatus(data) {
 
 function print() {
   $('#printButton').prop('disabled', true);
-  $('#statusPanel').html('');
+  $('#statusPanel').html('<div id="statusBox" class="alert alert-info" role="alert"><i class="glyphicon glyphicon-hourglass"></i><span>Processing print request...</span></div>');
   $.ajax({
     type:     'POST',
     dataType: 'json',
