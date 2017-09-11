@@ -110,6 +110,13 @@ def create_label_im(text, **kwargs):
     im_font = ImageFont.truetype(kwargs['font_path'], kwargs['font_size'])
     im = Image.new('L', (20, 20), 'white')
     draw = ImageDraw.Draw(im)
+    # workaround for a bug in multiline_textsize()
+    # when there are empty lines in the text:
+    lines = []
+    for line in text.split('\n'):
+        if line == '': line = ' '
+        lines.append(line)
+    text = '\n'.join(lines)
     linesize = im_font.getsize(text)
     textsize = draw.multiline_textsize(text, font=im_font)
     width, height = kwargs['width'], kwargs['height']
