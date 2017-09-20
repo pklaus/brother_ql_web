@@ -21,6 +21,8 @@ Install the requirements:
 
     pip install -r requirements.txt
 
+In addition, `fontconfig` should be installed on your system. This package is pre-installed on many Linux distributions and you can use Homebrew to install it on your Mac.
+
 #### Usage
 
 To start the server, run `./brother_ql_web.py`. Here's its command line interface:
