@@ -11,3 +11,7 @@
   padding-left: 10px;
   display:table-cell;
 }
+
+textarea#labelText {
+  resize: none;
+}
