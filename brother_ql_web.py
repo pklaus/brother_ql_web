@@ -63,6 +63,7 @@ def get_label_context(request):
       'font_family':   d.get('font_family'),
       'font_style':    d.get('font_style'),
       'label_size':    d.get('label_size', "62"),
+      'kind':          label_type_specs[d.get('label_size', "62")]['kind'],
       'margin':    int(d.get('margin', 10)),
       'threshold': int(d.get('threshold', 70)),
       'align':         d.get('align', 'center'),
@@ -106,7 +107,7 @@ def get_label_context(request):
     return context
 
 def create_label_im(text, **kwargs):
-    label_type = label_type_specs[kwargs['label_size']]['kind']
+    label_type = kwargs['kind']
     im_font = ImageFont.truetype(kwargs['font_path'], kwargs['font_size'])
     im = Image.new('L', (20, 20), 'white')
     draw = ImageDraw.Draw(im)
@@ -193,8 +194,12 @@ def print_text():
     im = create_label_im(**context)
     if DEBUG: im.save('sample-out.png')
 
+    if context['kind'] == ENDLESS_LABEL:
+        rotate = 0 if context['orientation'] == 'standard' else 90
+    elif context['kind'] in (ROUND_DIE_CUT_LABEL, DIE_CUT_LABEL):
+        rotate = 'auto'
+
     qlr = BrotherQLRaster(MODEL)
-    rotate = 0 if context['orientation'] == 'standard' else 90
     create_label(qlr, im, context['label_size'], threshold=context['threshold'], cut=True, rotate=rotate)
 
     if not DEBUG:
