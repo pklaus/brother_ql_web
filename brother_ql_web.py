@@ -46,22 +46,24 @@ def serve_static(filename):
 @route('/labeldesigner')
 @view('labeldesigner.jinja2')
 def labeldesigner():
-    fonts = sorted(list(FONTS.keys()))
+    font_family_names = sorted(list(FONTS.keys()))
     label_sizes = LABEL_SIZES
     title = 'Label Designer'
     page_headline = 'Brother QL Label Designer'
-    return {'title': title, 'page_headline': page_headline, 'message': '', 'fonts': fonts, 'label_sizes': label_sizes, 'default_label_size': DEFAULT_LABEL_SIZE, 'default_orientation': DEFAULT_ORIENTATION}
+    return {'title': title, 'page_headline': page_headline, 'message': '', 'font_family_names': font_family_names, 'fonts': FONTS, 'label_sizes': label_sizes, 'default_label_size': DEFAULT_LABEL_SIZE, 'default_orientation': DEFAULT_ORIENTATION}
 
 def get_label_context(request):
     """ might raise LookupError() """
 
     d = request.params.decode() # UTF-8 decoded form data
 
+    font_family = d.get('font_family').rpartition('(')[0].strip()
+    font_style  = d.get('font_family').rpartition('(')[2].rstrip(')')
     context = {
       'text':          d.get('text', None),
       'font_size': int(d.get('font_size', 100)),
-      'font_family':   d.get('font_family'),
-      'font_style':    d.get('font_style'),
+      'font_family':   font_family,
+      'font_style':    font_style,
       'label_size':    d.get('label_size', "62"),
       'kind':          label_type_specs[d.get('label_size', "62")]['kind'],
       'margin':    int(d.get('margin', 10)),
@@ -78,14 +80,12 @@ def get_label_context(request):
     context['margin_left']   = int(context['font_size']*context['margin_left'])
     context['margin_right']  = int(context['font_size']*context['margin_right'])
 
-    def get_font_path(font_family, font_style):
+    def get_font_path(font_family_name, font_style_name):
         try:
-            if font_family is None:
-                font_family = DEFAULT_FONT['family']
-                font_style =  DEFAULT_FONT['style']
-            if font_style is None:
-                font_style =  'Regular'
-            font_path = FONTS[font_family][font_style]
+            if font_family_name is None or font_style_name is None:
+                font_family_name = DEFAULT_FONT['family']
+                font_style_name =  DEFAULT_FONT['style']
+            font_path = FONTS[font_family_name][font_style_name]
         except KeyError:
             raise LookupError("Couln't find the font & style")
         return font_path

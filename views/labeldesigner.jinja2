@@ -49,7 +49,11 @@
               <div class="chooser panel-body">
               <label for="fontFamily">Font Family:</label>
               <select class="form-control" id="fontFamily" onChange="preview()">
-                {% for font in fonts %}<option>{{font}}</option> {% endfor %}
+                {% for font_family_name in font_family_names %}
+                  {% for font_style in fonts[font_family_name].keys() %}
+                    <option>{{font_family_name}} ({{ font_style }})</option>
+                  {% endfor %}
+                {% endfor %}
               </select>
               <label for="fontSize" >Font Size:</label>
               <input id="fontSize" class="form-control" type="number" min="1" value="70" onChange="preview()" required>
