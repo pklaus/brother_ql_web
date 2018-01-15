@@ -4,7 +4,7 @@
 This is a web service to print labels on Brother QL label printers.
 """
 
-import sys, logging, socket, os, functools, textwrap
+import sys, logging, socket, os, functools, textwrap, random
 from io import BytesIO
 
 from bottle import run, route, get, post, response, request, jinja2_view as view, static_file, redirect
@@ -262,8 +262,11 @@ def main():
             break
         except: pass
     if DEFAULT_FONT is None:
-        sys.stderr.write('Could not find any of the default fonts')
-        sys.exit()
+        sys.stderr.write('Could not find any of the default fonts. Choosing a random one.\n')
+        family =  random.choice(list(FONTS.keys()))
+        style =   random.choice(list(FONTS[family].keys()))
+        DEFAULT_FONT = {'family': family, 'style': style}
+        sys.stderr.write('The default font is now set to: {family} ({style})\n'.format(**DEFAULT_FONT))
 
     run(host='', port=args.port, debug=DEBUG)
 
