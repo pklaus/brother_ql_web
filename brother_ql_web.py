@@ -250,6 +250,9 @@ def main():
     FONTS = get_fonts()
     if args.font_folder:
         FONTS.update(get_fonts(args.font_folder))
+    if not FONTS:
+        sys.stderr.write("Not a single font was found on your system. Please install some or use the \"--font-folder\" argument.\n")
+        sys.exit(2)
 
     for font in DEFAULT_FONTS:
         try:
