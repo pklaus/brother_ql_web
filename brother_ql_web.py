@@ -18,6 +18,7 @@ from brother_ql.backends import backend_factory, guess_backend
 
 from font_helpers import get_fonts
 
+logging.basicConfig(filename='printhistory.log',level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 DEBUG = False
@@ -214,6 +215,9 @@ def print_text():
             logger.warning('Exception happened: %s', e)
             return return_dict
 
+    remote_hostinfo = socket.gethostbyaddr("request['REMOTE_ADDR']")
+    logger.info('IP: %s Hostname: %s Printing: %s', request['REMOTE_ADDR'], remote_hostinfo[0], context['text'])
+
     return_dict['success'] = True
     if DEBUG: return_dict['data'] = str(qlr.data)
     return return_dict
@@ -269,7 +273,7 @@ def main():
         DEFAULT_FONT = {'family': family, 'style': style}
         sys.stderr.write('The default font is now set to: {family} ({style})\n'.format(**DEFAULT_FONT))
 
-    run(host='', port=args.port, debug=DEBUG)
+    run(host='', port=args.port, debug=DEBUG, quiet=not DEBUG)
 
 if __name__ == "__main__":
     main()
