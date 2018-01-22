@@ -215,7 +215,7 @@ def print_text():
             logger.warning('Exception happened: %s', e)
             return return_dict
 
-    remote_hostinfo = socket.gethostbyaddr("request['REMOTE_ADDR']")
+    remote_hostinfo = socket.gethostbyaddr(request['REMOTE_ADDR'])
     logger.info('IP: %s Hostname: %s Printing: %s', request['REMOTE_ADDR'], remote_hostinfo[0], context['text'])
 
     return_dict['success'] = True
