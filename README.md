@@ -4,6 +4,11 @@ This is a web service to print labels on Brother QL label printers.
 
 You need Python 3 for this software to work.
 
+![Screenshot](./static/images/screenshots/Label-Designer_Desktop.png)
+
+The web interface is [responsive](https://en.wikipedia.org/wiki/Responsive_web_design).
+There's also a screenshot showing [how it looks on a smartphone](./static/images/screenshots/Label-Designer_Phone.png)
+
 ### Installation
 
 Get the code:
