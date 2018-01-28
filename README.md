@@ -1,4 +1,4 @@
-### brother\_ql\_web
+## brother\_ql\_web
 
 This is a web service to print labels on Brother QL label printers.
 
@@ -9,7 +9,7 @@ It offers:
 
 You need Python 3 for this software to work.
 
-#### Installation
+### Installation
 
 Get the code:
 
@@ -23,7 +23,7 @@ Install the requirements:
 
 In addition, `fontconfig` should be installed on your system. This package is pre-installed on many Linux distributions and you can use Homebrew to install it on your Mac.
 
-#### Usage
+### Usage
 
 To start the server, run `./brother_ql_web.py`. Here's its command line interface:
 
