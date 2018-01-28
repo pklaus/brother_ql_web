@@ -2,11 +2,6 @@
 
 This is a web service to print labels on Brother QL label printers.
 
-It offers:
-* a Web GUI allowing you to print your labels at */labeldesigner*,
-* an API at */api/print/text/Your_Text?font_size=100&font_family=Minion%20Pro&font_style=Semibold*
-  to print a label containing 'Your Text' with the specified font properties.
-
 You need Python 3 for this software to work.
 
 ### Installation
@@ -53,4 +48,17 @@ To start the server, run `./brother_ql_web.py`. Here's its command line interfac
                             your text by 90°, state "rotated".
       --model {QL-500,QL-550,QL-560,QL-570,QL-580N,QL-650TD,QL-700,QL-710W,QL-720NW,QL-1050,QL-1060N}
                             The model of your printer (default: QL-500)
+
+### Usage
+
+Once it's running, access the web interface by opening the page with your browser.
+If you run it on your local machine, go to <http://localhost:8013> (You can change
+the default port 8013 using the --port argument).
+You will then be forwarded by default to the interactive web gui located at */labeldesigner*.
+
+All in all, the web server offers:
+
+* a Web GUI allowing you to print your labels at */labeldesigner*,
+* an API at */api/print/text/Your_Text?font_size=100&font_family=Minion%20Pro&font_style=Semibold*
+  to print a label containing 'Your Text' with the specified font properties.
 
