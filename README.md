@@ -11,6 +11,10 @@ There's also a screenshot showing [how it looks on a smartphone](./static/images
 
 ### Installation
 
+**ProTip™**: If you know how to use Docker, you might want to use my ready-to-use Docker image to deploy this software.
+It can be found [on the Docker hub](https://hub.docker.com/r/pklaus/brother_ql_web/).  
+Otherwise, follow the instructions below.
+
 Get the code:
 
     git clone https://github.com/pklaus/brother_ql_web.git
