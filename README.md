@@ -25,7 +25,10 @@ Install the requirements:
 
     pip install -r requirements.txt
 
-In addition, `fontconfig` should be installed on your system. This package is pre-installed on many Linux distributions and you can use Homebrew to install it on your Mac.
+In addition, `fontconfig` should be installed on your system. It's used to identify and
+inspect fonts on your machine. This package is pre-installed on many Linux distributions.
+If you're using a Mac, I recommend to use [Homebrew](https://brew.sh) to install
+fontconfig using [`brew install fontconfig`](http://brewformulas.org/Fontconfig).
 
 ### Startup
 
