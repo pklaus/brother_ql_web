@@ -4,7 +4,7 @@
 This is a web service to print labels on Brother QL label printers.
 """
 
-import sys, logging, socket, os, functools, textwrap, random
+import sys, logging, random
 from io import BytesIO
 
 from bottle import run, route, get, post, response, request, jinja2_view as view, static_file, redirect
