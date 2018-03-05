@@ -12,7 +12,7 @@
   "LABEL": {
     "DEFAULT_SIZE": "62",
     "DEFAULT_ORIENTATION": "standard",
-    "DEFAULT_FONT_SIZE": 45,
+    "DEFAULT_FONT_SIZE": 70,
     "DEFAULT_FONTS": [
       {"family": "Minion Pro",      "style": "Semibold"},
       {"family": "Linux Libertine", "style": "Regular"},
@@ -21,7 +21,7 @@
   },
   "WEBSITE": {
     "HTML_TITLE": "Label Designer",
-    "PAGE_TITLE": "Label Designer",
-    "PAGE_HEADLINE": "Brother QL Label Designer"
+    "PAGE_TITLE": "Brother QL Label Designer",
+    "PAGE_HEADLINE": "Design your label and print it…"
   }
 }
