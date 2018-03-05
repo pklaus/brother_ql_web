@@ -3,8 +3,8 @@
 {% block page_title %}{{ title }}{% endblock %}
 
 {% block jumbotron %}
-  <h1>{{page_headline}}</h1>
-  <p>Design your label and print it...</p>
+  <h1>{{ website['PAGE_TITLE'] }}</h1>
+  <p>{{ website['PAGE_HEADLINE'] }}</p>
   <!--<p><a class="btn btn-primary btn-lg" href="#" role="button">History of printed labels</a></p>-->
 {% endblock %}
 
@@ -24,7 +24,7 @@
               <div class="chooser panel-body">
               <label for="labelSize" style="display: none">Label Size:</label>
               <select class="form-control" id="labelSize" onChange="preview()">
-                {% for label_size in label_sizes %}<option value="{{label_size[0]}}" {% if default_label_size == label_size[0] %}selected{% endif %}>{{label_size[1]}}</option>{% endfor %}
+                {% for label_size in label_sizes %}<option value="{{label_size[0]}}" {% if label['DEFAULT_SIZE'] == label_size[0] %}selected{% endif %}>{{label_size[1]}}</option>{% endfor %}
               </select>
               <label for="orientation" style="margin-top: 10px; margin-bottom: 0">Label Orientation:</label>
               <div class="radio" style="margin-top: 5px;">
@@ -56,7 +56,7 @@
                 {% endfor %}
               </select>
               <label for="fontSize" >Font Size:</label>
-              <input id="fontSize" class="form-control" type="number" min="1" value="70" onChange="preview()" required>
+              <input id="fontSize" class="form-control" type="number" min="1" value="{{ label['DEFAULT_FONT_SIZE'] }}" onChange="preview()" required>
               <label for="fontAlign" class="control-label input-group">Font Alignment:</label>
               <div class="btn-group" data-toggle="buttons">
                   <label class="btn btn-default">
