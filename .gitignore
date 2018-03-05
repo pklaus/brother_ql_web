@@ -1,4 +1,6 @@
-# Created by .ignore support plugin (hsz.mobi)
+# ignore config.json
+config.json
+
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -105,3 +107,5 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# idea
+.idea/*
