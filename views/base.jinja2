@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/custom.css">
 
-    <title>{% block page_title %}{% endblock %} | Brother QL</title>
+    <title>{{ website['HTML_TITLE'] }} | Brother QL</title>
   </head>
   <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -22,7 +22,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">{{page_headline}}</a>
+          <a class="navbar-brand" href="/">{{ website['PAGE_TITLE'] }}</a>
         </div>
       </div>
     </nav>
