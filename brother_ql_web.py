@@ -215,7 +215,7 @@ def print_text():
 def main():
     global DEBUG, FONTS, BACKEND_CLASS, CONFIG
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--port', default=8013)
+    parser.add_argument('--port', default=False)
     parser.add_argument('--loglevel', type=lambda x: getattr(logging, x.upper()), default=False)
     parser.add_argument('--font-folder', default=False, help='folder for additional .ttf/.otf fonts')
     parser.add_argument('--default-label-size', default=False, help='Label size inserted in your printer. Defaults to 62.')
