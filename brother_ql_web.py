@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: latin-1 -*-
 
 """
 This is a web service to print labels on Brother QL label printers.
