@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
 This is a web service to print labels on Brother QL label printers.
@@ -20,6 +21,8 @@ from font_helpers import get_fonts
 logger = logging.getLogger(__name__)
 
 LABEL_SIZES = [ (name, label_type_specs[name]['name']) for name in label_sizes]
+
+PRINTERS = {}
 
 try:
     with open('config.json') as fh:
@@ -45,7 +48,8 @@ def labeldesigner():
             'fonts': FONTS,
             'label_sizes': LABEL_SIZES,
             'website': CONFIG['WEBSITE'],
-            'label': CONFIG['LABEL']}
+            'label': CONFIG['LABEL'],
+            'printers': PRINTERS }
 
 def get_label_context(request):
     """ might raise LookupError() """
@@ -69,6 +73,7 @@ def get_label_context(request):
       'margin_bottom': float(d.get('margin_bottom', 45))/100.,
       'margin_left':   float(d.get('margin_left',   35))/100.,
       'margin_right':  float(d.get('margin_right',  35))/100.,
+      'printer_name':  d.get('printer_name', None),
     }
     context['margin_top']    = int(context['font_size']*context['margin_top'])
     context['margin_bottom'] = int(context['font_size']*context['margin_bottom'])
@@ -179,11 +184,15 @@ def print_text():
     try:
         context = get_label_context(request)
     except LookupError as e:
-        return_dict['error'] = e.msg
+        return_dict['message'] = e.msg
         return return_dict
 
-    if context['text'] is None:
-        return_dict['error'] = 'Please provide the text for the label'
+    if not context['text'] or context['text'] is None:
+        return_dict['message'] = 'Please provide the text for the label'
+        return return_dict
+
+    if not context['printer_name'] or context['printer_name'] is None:
+        return_dict['message'] = 'Please select a printer'
         return return_dict
 
     im = create_label_im(**context)
@@ -193,13 +202,21 @@ def print_text():
         rotate = 0 if context['orientation'] == 'standard' else 90
     elif context['kind'] in (ROUND_DIE_CUT_LABEL, DIE_CUT_LABEL):
         rotate = 'auto'
-
-    qlr = BrotherQLRaster(CONFIG['PRINTER']['MODEL'])
+    
+    qlr = BrotherQLRaster(PRINTERS[context['printer_name']]["MODEL"])
     create_label(qlr, im, context['label_size'], threshold=context['threshold'], cut=True, rotate=rotate)
+
+    try:
+        selected_backend = guess_backend(PRINTERS[context['printer_name']]["LOCATION"])
+    except Exception as e:
+        return_dict['message'] = str(e)
+        return return_dict
+    
+    BACKEND_CLASS = backend_factory(selected_backend)['backend_class']
 
     if not DEBUG:
         try:
-            be = BACKEND_CLASS(CONFIG['PRINTER']['PRINTER'])
+            be = BACKEND_CLASS(PRINTERS[context['printer_name']]["LOCATION"])
             be.write(qlr.data)
             be.dispose()
             del be
@@ -219,13 +236,13 @@ def main():
     parser.add_argument('--loglevel', type=lambda x: getattr(logging, x.upper()), default=False)
     parser.add_argument('--font-folder', default=False, help='folder for additional .ttf/.otf fonts')
     parser.add_argument('--default-label-size', default=False, help='Label size inserted in your printer. Defaults to 62.')
-    parser.add_argument('--default-orientation', default=False, choices=('standard', 'rotated'), help='Label orientation, defaults to "standard". To turn your text by 90°, state "rotated".')
+    parser.add_argument('--default-orientation', default=False, choices=('standard', 'rotated'), help='Label orientation, defaults to "standard". To turn your text by 90 degrees, state "rotated".')
     parser.add_argument('--model', default=False, choices=models, help='The model of your printer (default: QL-500)')
     parser.add_argument('printer',  nargs='?', default=False, help='String descriptor for the printer to use (like tcp://192.168.0.23:9100 or file:///dev/usb/lp0)')
     args = parser.parse_args()
 
     if args.printer:
-        CONFIG['PRINTER']['PRINTER'] = args.printer
+        CONFIG['PRINTERS']['PRINTER'] = args.printer
 
     if args.port:
         PORT = args.port
@@ -243,7 +260,7 @@ def main():
         DEBUG = False
 
     if args.model:
-        CONFIG['PRINTER']['MODEL'] = args.model
+        CONFIG['PRINTERS']['MODEL'] = args.model
 
     if args.default_label_size:
         CONFIG['LABEL']['DEFAULT_SIZE'] = args.default_label_size
@@ -258,12 +275,6 @@ def main():
 
 
     logging.basicConfig(level=LOGLEVEL)
-
-    try:
-        selected_backend = guess_backend(CONFIG['PRINTER']['PRINTER'])
-    except ValueError:
-        parser.error("Couln't guess the backend to use from the printer string descriptor")
-    BACKEND_CLASS = backend_factory(selected_backend)['backend_class']
 
     if CONFIG['LABEL']['DEFAULT_SIZE'] not in label_sizes:
         parser.error("Invalid --default-label-size. Please choose on of the following:\n:" + " ".join(label_sizes))
@@ -289,6 +300,9 @@ def main():
         style =   random.choice(list(FONTS[family].keys()))
         CONFIG['LABEL']['DEFAULT_FONTS'] = {'family': family, 'style': style}
         sys.stderr.write('The default font is now set to: {family} ({style})\n'.format(**CONFIG['LABEL']['DEFAULT_FONTS']))
+
+    for printer in CONFIG['PRINTERS']:
+        PRINTERS[printer["NAME"]] = printer
 
     run(host=CONFIG['SERVER']['HOST'], port=PORT, debug=DEBUG)
 

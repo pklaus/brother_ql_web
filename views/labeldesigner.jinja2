@@ -110,12 +110,24 @@
         <label for="labelText">Label Text:</label>
         <textarea rows="7" id="labelText" class="form-control" onChange="preview()" onInput="preview()"></textarea>
       </fieldset>
-    </div>
+    </div>   
     <div class="col-md-4">
       <fieldset class="form-group">
         <label for="previewImg">Label Preview:</label><br />
         <img id="previewImg" style="border: 1px solid #444; max-height: 350px; width: auto; max-width: 100%; margin-bottom: 10px;"/>
         <p>Printed size w/o margins: <span id="labelWidth">?</span> cm x <span id="labelHeight">?</span> cm</p>
+
+        <div {% if printers|length == 1 %} hidden {% endif %}>
+          <label for="printer">Printer:</label>
+          <select class="form-control" id="printer">
+            <option value="" disabled {% if printers|length > 1 %} selected {% endif %} > -- select a printer -- </option>
+            {% for printer in printers %}
+                <option value="{{printer}}" {% if printers|length == 1 %} selected {% endif %} >{{printer}}</option>
+            {% endfor %}
+          </select>
+          <br/>
+        </div>
+        
         <button id="printButton" type="button" class="btn btn-primary btn-block btn-lg" onClick="print()">
           <span class="glyphicon glyphicon-print" aria-hidden="true"></span> Print
         </button>
@@ -136,9 +148,8 @@
 var text = $('#labelText');
 
 function formData() {
-  //var text = $('#labelText').val().replace(/\n/g, "%0A");
   var text = $('#labelText').val();
-  if (text == '') text = ' ';
+  
   return {
     text:        text,
     font_family: $('#fontFamily option:selected').text(),
@@ -149,7 +160,8 @@ function formData() {
     margin_top:    $('#marginTop').val(),
     margin_bottom: $('#marginBottom').val(),
     margin_left:   $('#marginLeft').val(),
-    margin_right:  $('#marginRight').val()
+    margin_right:  $('#marginRight').val(),
+    printer_name:  $('#printer option:selected').val()
   }
 }
 
