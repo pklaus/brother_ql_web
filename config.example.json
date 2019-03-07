@@ -5,10 +5,13 @@
     "LOGLEVEL": "WARNING",
     "ADDITIONAL_FONT_FOLDER": false
   },
-  "PRINTER": {
-    "MODEL": "QL-500",
-    "PRINTER": "file:///dev/usb/lp1"
-  },
+  "PRINTERS": [
+    {
+      "NAME": "Labelprinter",
+      "MODEL": "QL-500",
+      "LOCATION": "file:///dev/usb/lp1"
+    }
+  ],
   "LABEL": {
     "DEFAULT_SIZE": "62",
     "DEFAULT_ORIENTATION": "standard",
