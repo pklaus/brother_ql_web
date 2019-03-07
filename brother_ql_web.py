@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 LABEL_SIZES = [ (name, label_type_specs[name]['name']) for name in label_sizes]
 
 try:
-    with open('config.json') as fh:
+    with open('config.json', encoding='utf-8') as fh:
         CONFIG = json.load(fh)
 except FileNotFoundError as e:
-    with open('config.example.json') as fh:
+    with open('config.example.json', encoding='utf-8') as fh:
         CONFIG = json.load(fh)
 
 
