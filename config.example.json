@@ -1,16 +1,16 @@
 {
+  "CUPS_HOST": "localhost",
   "SERVER": {
-    "PORT": 8013,
+    "PORT": 8000,
     "HOST": "",
     "LOGLEVEL": "WARNING",
     "ADDITIONAL_FONT_FOLDER": false
   },
   "PRINTER": {
-    "MODEL": "QL-500",
-    "PRINTER": "file:///dev/usb/lp1"
+    "NAME": "DYMO_LabelWriter_450",
   },
   "LABEL": {
-    "DEFAULT_SIZE": "62",
+    "DEFAULT_SIZE": "39x90",
     "DEFAULT_ORIENTATION": "standard",
     "DEFAULT_FONT_SIZE": 70,
     "DEFAULT_FONTS": [
@@ -21,7 +21,7 @@
   },
   "WEBSITE": {
     "HTML_TITLE": "Label Designer",
-    "PAGE_TITLE": "Brother QL Label Designer",
+    "PAGE_TITLE": "Label Designer",
     "PAGE_HEADLINE": "Design your label and print it…"
   }
 }

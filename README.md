@@ -1,6 +1,6 @@
-## brother\_ql\_web
+## Web label maker
 
-This is a web service to print labels on Brother QL label printers.
+Forked [this](https://github.com/pklaus/brother_ql_web) project and replaced the brother library by PYCUPS. Need some work to actually properly support CUPS printers. It currently only prints the images that are created by the script. 
 
 You need Python 3 for this software to work.
 
@@ -17,9 +17,9 @@ Otherwise, follow the instructions below.
 
 Get the code:
 
-    git clone https://github.com/pklaus/brother_ql_web.git
+    git clone https://github.com/ReinierH/brother_ql_web.git
 
-or download [the ZIP file](https://github.com/pklaus/brother_ql_web/archive/master.zip) and unpack it.
+or download [the ZIP file](https://github.com/ReinierH/brother_ql_web/archive/master.zip) and unpack it.
 
 Install the requirements:
 

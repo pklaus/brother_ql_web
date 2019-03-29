@@ -5,11 +5,13 @@ This is a web service to print labels on Brother QL label printers.
 """
 
 import sys, logging, random, json, argparse
+from tempfile import mktemp
 from io import BytesIO
 
 from bottle import run, route, get, post, response, request, jinja2_view as view, static_file, redirect
 from PIL import Image, ImageDraw, ImageFont
 
+import cups
 from brother_ql.devicedependent import models, label_type_specs, label_sizes
 from brother_ql.devicedependent import ENDLESS_LABEL, DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL
 from brother_ql import BrotherQLRaster, create_label
@@ -28,6 +30,8 @@ except FileNotFoundError as e:
     with open('config.example.json', encoding='utf-8') as fh:
         CONFIG = json.load(fh)
 
+cups.setServer(CONFIG['CUPS_HOST'])
+cups_conn = cups.Connection()
 
 @route('/')
 def index():
@@ -40,6 +44,8 @@ def serve_static(filename):
 @route('/labeldesigner')
 @view('labeldesigner.jinja2')
 def labeldesigner():
+    # printers = cups_conn.getPrinters()
+    # PRINTERS = [i for i in printers.keys()]
     font_family_names = sorted(list(FONTS.keys()))
     return {'font_family_names': font_family_names,
             'fonts': FONTS,
@@ -194,20 +200,14 @@ def print_text():
     elif context['kind'] in (ROUND_DIE_CUT_LABEL, DIE_CUT_LABEL):
         rotate = 'auto'
 
-    qlr = BrotherQLRaster(CONFIG['PRINTER']['MODEL'])
-    create_label(qlr, im, context['label_size'], threshold=context['threshold'], cut=True, rotate=rotate)
+    output = mktemp(prefix='png')
+    im.save(output, format='png')
 
-    if not DEBUG:
-        try:
-            be = BACKEND_CLASS(CONFIG['PRINTER']['PRINTER'])
-            be.write(qlr.data)
-            be.dispose()
-            del be
-        except Exception as e:
-            return_dict['message'] = str(e)
-            logger.warning('Exception happened: %s', e)
-            return return_dict
+    #qlr = BrotherQLRaster(CONFIG['PRINTER']['MODEL'])
+    cups_conn.printFile(CONFIG['PRINTER']['NAME'], output, "Label", {})
+    #create_label(qlr, img, context['label_size'], threshold=context['threshold'], cut=True, rotate=rotate)
 
+    return_dict['message'] = str("Printing...") 
     return_dict['success'] = True
     if DEBUG: return_dict['data'] = str(qlr.data)
     return return_dict
