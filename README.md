@@ -78,6 +78,17 @@ All in all, the web server offers:
 * an API at `/api/print/text?text=Your_Text&font_size=100&font_family=Minion%20Pro%20(%20Semibold%20)`
   to print a label containing 'Your Text' with the specified font properties.
 
+### Development
+
+'Cross-compile' with *Docker for Mac*:
+
+    docker pull --platform arm arm32v7/python:3
+    docker build --no-cache -t dersimn/brother_ql_fridgedate:armhf -f Dockerfile.armhf .
+
+Copy over to the Pi with:
+
+    docker save dersimn/brother_ql_fridgedate:armhf | gzip | ssh root@10.1.1.145 'gunzip | docker load'
+
 ### License
 
 This software is published under the terms of the GPLv3, see the LICENSE file in the repository.

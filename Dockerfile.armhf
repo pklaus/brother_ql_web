@@ -1,0 +1,11 @@
+FROM arm32v7/python:3
+
+COPY . /python
+
+RUN cd /python && \
+    pip3 install -r requirements.txt
+
+EXPOSE 8013
+
+WORKDIR /python
+ENTRYPOINT [ "python3", "brother_ql_web.py" ]
