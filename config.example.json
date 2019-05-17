@@ -3,7 +3,8 @@
     "PORT": 8013,
     "HOST": "",
     "LOGLEVEL": "WARNING",
-    "ADDITIONAL_FONT_FOLDER": false
+    "ADDITIONAL_FONT_FOLDER": false,
+    "INCLUDE_SYSTEM_FONTS": false
   },
   "PRINTER": {
     "MODEL": "QL-500",

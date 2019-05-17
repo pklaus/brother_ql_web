@@ -98,3 +98,4 @@ Parts of this package are redistributed software products from 3rd parties. They
 * [Bootstrap](https://github.com/twbs/bootstrap), MIT License
 * [Glyphicons](https://getbootstrap.com/docs/3.3/components/#glyphicons), MIT License (as part of Bootstrap 3.3)
 * [jQuery](https://github.com/jquery/jquery), MIT License
+* [Bitstream Vera Fonts](https://www.gnome.org/fonts/)
