@@ -83,11 +83,11 @@ All in all, the web server offers:
 'Cross-compile' with *Docker for Mac*:
 
     docker pull --platform arm arm32v7/python:3
-    docker build --no-cache -t dersimn/brother_ql_fridgedate:armhf -f Dockerfile.armhf .
+    docker build --no-cache -t brother_ql_web:armhf -f Dockerfile.armhf .
 
 Copy over to the Pi with:
 
-    docker save dersimn/brother_ql_fridgedate:armhf | gzip | ssh root@10.1.1.145 'gunzip | docker load'
+    docker save brother_ql_web:armhf | gzip | ssh root@10.1.1.145 'gunzip | docker load'
 
 ### License
 
