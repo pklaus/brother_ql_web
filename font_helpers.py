@@ -20,6 +20,10 @@ def get_fonts(folder=None):
         if not line: continue
         if 'otf' not in line and 'ttf' not in line: continue
         parts = line.split(':')
+        if 'style=' not in line or len(parts) < 3:
+            # fc-list didn't output all desired properties
+            logger.warn('skipping invalid font %s', line)
+            continue
         path = parts[0]
         families = parts[1].strip().split(',')
         styles = parts[2].split('=')[1].split(',')
