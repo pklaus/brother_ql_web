@@ -76,6 +76,8 @@ def get_label_context(request):
     context['margin_left']   = int(context['font_size']*context['margin_left'])
     context['margin_right']  = int(context['font_size']*context['margin_right'])
 
+    context['fill_color']  = (255, 0, 0) if 'red' in context['label_size'] else (0, 0, 0)
+
     def get_font_path(font_family_name, font_style_name):
         try:
             if font_family_name is None or font_style_name is None:
@@ -123,7 +125,7 @@ def create_label_im(text, **kwargs):
     elif kwargs['orientation'] == 'rotated':
         if label_type in (ENDLESS_LABEL,):
             width = textsize[0] + kwargs['margin_left'] + kwargs['margin_right']
-    im = Image.new('L', (width, height), 'white')
+    im = Image.new('RGB', (width, height), 'white')
     draw = ImageDraw.Draw(im)
     if kwargs['orientation'] == 'standard':
         if label_type in (DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL):
@@ -140,7 +142,7 @@ def create_label_im(text, **kwargs):
         else:
             horizontal_offset = kwargs['margin_left']
     offset = horizontal_offset, vertical_offset
-    draw.multiline_text(offset, text, (0), font=im_font, align=kwargs['align'])
+    draw.multiline_text(offset, text, kwargs['fill_color'], font=im_font, align=kwargs['align'])
     return im
 
 @get('/api/preview/text')
