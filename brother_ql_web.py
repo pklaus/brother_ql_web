@@ -196,7 +196,10 @@ def print_text():
         rotate = 'auto'
 
     qlr = BrotherQLRaster(CONFIG['PRINTER']['MODEL'])
-    create_label(qlr, im, context['label_size'], threshold=context['threshold'], cut=True, rotate=rotate)
+    red = False
+    if 'red' in context['label_size']:
+        red = True
+    create_label(qlr, im, context['label_size'], red=red, threshold=context['threshold'], cut=True, rotate=rotate)
 
     if not DEBUG:
         try:
