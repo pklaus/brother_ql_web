@@ -15,3 +15,7 @@
 textarea#labelText {
   resize: none;
 }
+
+.roundPreviewImage {
+    border-radius: 100%;
+}

@@ -24,7 +24,7 @@
               <div class="chooser panel-body">
               <label for="labelSize" style="display: none">Label Size:</label>
               <select class="form-control" id="labelSize" onChange="preview()">
-                {% for label_size in label_sizes %}<option value="{{label_size[0]}}" {% if label['DEFAULT_SIZE'] == label_size[0] %}selected{% endif %}>{{label_size[1]}}</option>{% endfor %}
+                {% for label_size in label_sizes %}<option value="{{label_size[0]}}" data-round="{{label_size[2]}}" {% if label['DEFAULT_SIZE'] == label_size[0] %}selected{% endif %}>{{label_size[1]}}</option>{% endfor %}
               </select>
               <label for="orientation" style="margin-top: 10px; margin-bottom: 0">Label Orientation:</label>
               <div class="radio" style="margin-top: 5px;">
@@ -154,6 +154,12 @@ function formData() {
 }
 
 function preview() {
+  if ($('#labelSize option:selected').data('round') == 'True') {
+    $('img#previewImg').addClass('roundPreviewImage');
+  } else {
+    $('img#previewImg').removeClass('roundPreviewImage');
+  }
+
   if ($('input[name=orientation]:checked').val() == 'standard') {
     $('.marginsTopBottom').prop('disabled', false).removeAttr('title');
     $('.marginsLeftRight').prop('disabled', true).prop('title',  'Only relevant if rotated orientation is selected.');

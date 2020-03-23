@@ -20,7 +20,11 @@ from font_helpers import get_fonts
 
 logger = logging.getLogger(__name__)
 
-LABEL_SIZES = [ (name, label_type_specs[name]['name']) for name in label_sizes]
+LABEL_SIZES = [ (
+        name,
+        label_type_specs[name]['name'], 
+        (label_type_specs[name]['kind'] in (ROUND_DIE_CUT_LABEL,)) # True if round label
+    ) for name in label_sizes]
 
 try:
     with open('config.json', encoding='utf-8') as fh:
