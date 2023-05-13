@@ -12,7 +12,7 @@ from bottle import run, route, get, post, response, request, jinja2_view as view
 from PIL import Image, ImageDraw, ImageFont
 
 from brother_ql.devicedependent import models, label_type_specs, label_sizes
-from brother_ql.devicedependent import ENDLESS_LABEL, DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL
+from brother_ql.devicedependent import ENDLESS_LABEL, DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL, PTOUCH_ENDLESS_LABEL
 from brother_ql import BrotherQLRaster, create_label
 from brother_ql.backends import backend_factory, guess_backend
 
@@ -192,7 +192,7 @@ def print_text():
     im = create_label_im(**context)
     if DEBUG: im.save('sample-out.png')
 
-    if context['kind'] == ENDLESS_LABEL:
+    if context['kind'] in (ENDLESS_LABEL, PTOUCH_ENDLESS_LABEL):
         rotate = 0 if context['orientation'] == 'standard' else 90
     elif context['kind'] in (ROUND_DIE_CUT_LABEL, DIE_CUT_LABEL):
         rotate = 'auto'
@@ -201,7 +201,11 @@ def print_text():
     red = False
     if 'red' in context['label_size']:
         red = True
-    create_label(qlr, im, context['label_size'], red=red, threshold=context['threshold'], cut=True, rotate=rotate)
+    compress = False
+    if CONFIG['PRINTER']['MODEL'] == 'PT-P750W':
+        compress = True
+
+    create_label(qlr, im, context['label_size'], red=red, threshold=context['threshold'], cut=True, rotate=rotate, compress=compress)
 
     if not DEBUG:
         try:
