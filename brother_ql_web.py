@@ -201,7 +201,8 @@ def print_text():
     red = False
     if 'red' in context['label_size']:
         red = True
-    create_label(qlr, im, context['label_size'], red=red, threshold=context['threshold'], cut=True, rotate=rotate)
+    create_label(qlr, im, context['label_size'], red=red, threshold=context['threshold'],
+                 cut=True, rotate=rotate, dpi_600=True)
 
     if not DEBUG:
         try:
