@@ -1,7 +1,13 @@
 {
   "display_names": {
-    "BRW4CD577B21692": "BRW4CD577B21692",
-    "BRW2C98116050A9": "BRW2C98116050A9"
+    "BRW2C9C58CC0B09": "Downstairs Printer",
+    "BRW2C98116050A9": "Upstairs Printer",
+    "Martins-MacBook-Air": "Martins-MacBook-Air"
+  },
+  "default_label_sizes": {
+    "BRW2C9C58CC0B09": "62red",
+    "BRW2C98116050A9": "62",
+    "Martins-MacBook-Air": "62"
   },
   "manual_printers": {}
 }

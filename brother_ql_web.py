@@ -132,7 +132,21 @@ def print_label():
         # Extract parameters with defaults from config
         threshold = data.get("threshold", 70)
         rotate = data.get("rotate", "auto")
+        copies = data.get("copies", 1)
         printer_name = data.get("printer", None)
+
+        # Validate copies parameter
+        try:
+            copies = int(copies)
+            if copies < 1:
+                response.status = 400
+                return {"error": "Number of copies must be at least 1"}
+            if copies > 100:
+                response.status = 400
+                return {"error": "Number of copies cannot exceed 100"}
+        except (ValueError, TypeError):
+            response.status = 400
+            return {"error": "Invalid copies parameter, must be a positive integer"}
 
         # Get the printer service and determine label size
         if printer_name:
@@ -187,9 +201,11 @@ def print_label():
             label_size=label_size,
             threshold=threshold,
             rotate=rotate,
+            copies=copies,
         )
 
-        return {"success": True, "message": "Label printed successfully"}
+        copies_text = f"{copies} copies" if copies > 1 else "1 copy"
+        return {"success": True, "message": f"Label printed successfully ({copies_text})"}
     except Exception as e:
         logger.error(f"Error printing label: {e}")
         response.status = 500
@@ -319,6 +335,7 @@ def test_print_printer(printer_id):
             label_size=default_label_size,
             threshold=70,
             rotate="auto",
+            copies=1,  # Test prints are always single copy
         )
 
         return {

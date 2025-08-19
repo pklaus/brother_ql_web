@@ -81,6 +81,7 @@ class PrinterManager:
                 "default_label_sizes": self.printer_default_label_sizes,
                 "manual_printers": manual_printers,
             }
+            logger.info(f"Saving printer configs: {data}")
 
             with open(self.printer_configs_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
@@ -94,6 +95,7 @@ class PrinterManager:
         try:
             with self._lock:
                 printer_id = printer_info.name
+                logger.info(f"Printer found: {printer_id}")
 
                 # Set default display name if not already set
                 if printer_id not in self.printer_display_names:
@@ -115,6 +117,7 @@ class PrinterManager:
             with self._lock:
                 printer_id = printer_info.name
                 display_name = self.printer_display_names.get(printer_id)
+                logger.info(f"Printer removed: {printer_id} {display_name}")
 
                 # Remove printer service if it exists
                 if display_name and display_name in self.printer_services:
@@ -143,12 +146,13 @@ class PrinterManager:
                 return None
 
             # Create and cache the service
-            printer_address = f"tcp://{printer_info.address}:{printer_info.port}"
+            printer_address = f"tcp://{printer_info.address}:9100"
             service = LabelPrinterService(
                 printer_info.model,
                 printer_address,
                 self.backend_class,
             )
+            logger.info(f"Creating service for {display_name}")
             self.printer_services[display_name] = service
 
             return service
@@ -170,14 +174,12 @@ class PrinterManager:
 
     def list_printers(self) -> List[Dict[str, Any]]:
         """List all available printers with their display names and status"""
-        print("Listing printers")
         # Get printers from discovery service (this has its own lock)
         discovered_printers = self.discovery_service.get_printers()
-        print(f"Discovered printers: {discovered_printers}")
+        logger.info(f"Discovered printers: {discovered_printers}")
 
         # Only lock for the display names access
         with self._lock:
-            print("Listing printers 2")
             display_names_copy = self.printer_display_names.copy()
             label_sizes_copy = self.printer_default_label_sizes.copy()
 

@@ -46,6 +46,7 @@ class LabelPrinterService:
         label_size: str,
         threshold: int = 70,
         rotate: str = "auto",
+        copies: int = 1,
     ) -> bool:
         """
         Print a label directly from image data
@@ -55,11 +56,18 @@ class LabelPrinterService:
             label_size: Size of label to print
             threshold: Threshold for black/white conversion
             rotate: Rotation setting ('auto', 0, 90, 180, 270)
+            copies: Number of copies to print (default: 1)
 
         Returns:
             bool: True if successful
         """
         try:
+            # Validate copies parameter
+            if copies < 1:
+                raise ValueError("Number of copies must be at least 1")
+            if copies > 100:  # Reasonable upper limit
+                raise ValueError("Number of copies cannot exceed 100")
+
             # Decode the image data
             image = self.decode_base64_image(image_data)
 
@@ -69,25 +77,28 @@ class LabelPrinterService:
             # Create raster data
             qlr = BrotherQLRaster(self.model)
 
-            # Create the label
-            create_label(
-                qlr,
-                image,
-                label_size,
-                threshold=threshold,
-                cut=True,
-                rotate=rotate,
-                red=red,
-            )
+            # Create the label (for all copies at once)
+            for copy_num in range(copies):
+                create_label(
+                    qlr,
+                    image,
+                    label_size,
+                    threshold=threshold,
+                    cut=True,
+                    rotate=rotate,
+                    red=red,
+                )
 
-            # Print the label
+            # Print all labels
+            logger.info(f"printing {copies} copies to {self.printer_address}")
             be = self.backend_class(self.printer_address)
             time.sleep(0.5)  # this is needed for some reason??
+            logger.info(f"writing {len(qlr.data)} bytes for {copies} copies")
             be.write(qlr.data)
             be.dispose()
 
             logger.info(
-                f"Label printed successfully (size: {label_size}, threshold: {threshold}, rotate: {rotate})"
+                f"{copies} label copies printed successfully (size: {label_size}, threshold: {threshold}, rotate: {rotate})"
             )
             return True
 
