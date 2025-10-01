@@ -124,8 +124,7 @@ def print_label():
     """Print a label directly via HTTP request"""
     try:
         data = request.json
-
-        if not data or "image" not in data:
+        if not data or ("image" not in data and "images" not in data):
             response.status = 400
             return {"error": "Image data is required"}
 
@@ -196,20 +195,25 @@ def print_label():
             )
 
         # Print the label directly
-        result = printer_service.print_label(
-            image_data=data["image"],
-            label_size=label_size,
-            threshold=threshold,
-            rotate=rotate,
-            copies=copies,
-        )
+        images = data.get("images", [data.get("image", [])])
+        for image in images:
+            printer_service.print_label(
+                image_data=image,
+                label_size=label_size,
+                threshold=threshold,
+                rotate=rotate,
+                copies=copies,
+            )
 
         copies_text = f"{copies} copies" if copies > 1 else "1 copy"
-        return {"success": True, "message": f"Label printed successfully ({copies_text})"}
+        labels_text = f"{len(images)} labels" if len(images) > 1 else "1 label"
+        return {"success": True, "message": f"{labels_text} printed successfully ({copies_text})"}
     except Exception as e:
-        logger.error(f"Error printing label: {e}")
+        import traceback
+        logger.error("Error printing label", exc_info=True)
         response.status = 500
-        return {"error": str(e)}
+        tb_str = traceback.format_exc()
+        return {"error": str(e), "traceback": tb_str}
 
 
 @get("/api/printers")

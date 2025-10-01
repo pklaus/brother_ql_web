@@ -103,5 +103,6 @@ class LabelPrinterService:
             return True
 
         except Exception as e:
-            logger.error(f"Error printing label: {e}")
+            import traceback
+            logger.error(f"Error printing label: {e}\n{traceback.format_exc()}")
             raise
