@@ -10,7 +10,7 @@ from typing import Dict, Any
 import base64
 from io import BytesIO
 
-from bottle import run, route, get, post, response, request, static_file
+from bottle import run, route, get, post, response, request, static_file, BaseRequest
 from brother_ql.devicedependent import models
 from brother_ql.backends import backend_factory, guess_backend
 from jinja2 import Environment, FileSystemLoader
@@ -21,6 +21,9 @@ from printer_service import LabelPrinterService
 from printer_manager import PrinterManager
 
 logger = logging.getLogger(__name__)
+
+# Increase max request size to handle large images (100MB)
+BaseRequest.MEMFILE_MAX = 100 * 1024 * 1024  # 100MB in bytes
 
 printer_manager = None
 
@@ -218,9 +221,11 @@ def print_label():
 
 @get("/api/printers")
 def list_printers():
-    """List all available printers"""
+    """List all available printers (only online printers by default)"""
     try:
-        printers = printer_manager.list_printers()
+        # Support query parameter to include offline printers (e.g., for debugging)
+        include_offline = request.query.get("include_offline", "false").lower() == "true"
+        printers = printer_manager.list_printers(include_offline=include_offline)
         return {"printers": printers}
     except Exception as e:
         logger.error(f"Error listing printers: {e}")

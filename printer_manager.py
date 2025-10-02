@@ -172,8 +172,16 @@ class PrinterManager:
             self._save_printer_configs()
             return True
 
-    def list_printers(self) -> List[Dict[str, Any]]:
-        """List all available printers with their display names and status"""
+    def list_printers(self, include_offline: bool = False) -> List[Dict[str, Any]]:
+        """
+        List all available printers with their display names and status
+        
+        Args:
+            include_offline: If True, include offline printers in the list. Default is False.
+        
+        Returns:
+            List of printer dictionaries with connectivity status
+        """
         # Get printers from discovery service (this has its own lock)
         discovered_printers = self.discovery_service.get_printers()
         logger.info(f"Discovered printers: {discovered_printers}")
@@ -188,10 +196,25 @@ class PrinterManager:
             display_name = display_names_copy.get(printer_id, printer_id)
             default_label_size = label_sizes_copy.get(printer_id, "62")
 
+            # Check if printer is online
+            printer_address = f"tcp://{printer_info.address}:9100"
+            service = LabelPrinterService(
+                printer_info.model,
+                printer_address,
+                self.backend_class,
+            )
+            is_online = service.is_online(timeout=0.5)
+            
+            # Skip offline printers unless explicitly requested
+            if not is_online and not include_offline:
+                logger.debug(f"Skipping offline printer: {printer_id} ({display_name})")
+                continue
+
             printer_data = printer_info.to_dict()
             printer_data["display_name"] = display_name
             printer_data["printer_id"] = printer_id
             printer_data["default_label_size"] = default_label_size
+            printer_data["is_online"] = is_online
 
             printers.append(printer_data)
 

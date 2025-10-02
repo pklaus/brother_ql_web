@@ -1,5 +1,6 @@
 import time
 import logging
+import socket
 from io import BytesIO
 from typing import Dict, Any
 from PIL import Image
@@ -15,6 +16,41 @@ class LabelPrinterService:
         self.model = model
         self.printer_address = printer_address
         self.backend_class = backend_class
+
+    def is_online(self, timeout: float = 2.0) -> bool:
+        """
+        Check if the printer is reachable
+        
+        Args:
+            timeout: Connection timeout in seconds (default: 2.0)
+        
+        Returns:
+            bool: True if printer is reachable, False otherwise
+        """
+        try:
+            # Parse the printer address (format: tcp://host:port)
+            if self.printer_address.startswith("tcp://"):
+                address = self.printer_address[6:]  # Remove 'tcp://'
+                if ":" in address:
+                    host, port_str = address.rsplit(":", 1)
+                    port = int(port_str)
+                else:
+                    host = address
+                    port = 9100  # Default port
+            else:
+                logger.warning(f"Unsupported printer address format: {self.printer_address}")
+                return False
+            
+            # Try to connect to the printer
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
+            result = sock.connect_ex((host, port))
+            sock.close()
+            
+            return result == 0
+        except Exception as e:
+            logger.debug(f"Printer connectivity check failed for {self.printer_address}: {e}")
+            return False
 
     def decode_base64_image(self, base64_string: str) -> Image.Image:
         """Decode a base64 string into a PIL Image"""
