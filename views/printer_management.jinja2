@@ -41,7 +41,7 @@
         <div class="panel-body">
           <p>Printers are automatically discovered on your network using Zeroconf/Bonjour.</p>
           <p>You can also manually add printers by clicking "Add Manual Printer".</p>
-          <p><strong>Supported models:</strong> Brother QL series (QL-500, QL-700, QL-800, etc.)</p>
+          <p><strong>Supported models:</strong> Brother QL series (QL-500, QL-700, QL-800, etc.) and P-touch series (PT-P900W, PT-P950NW)</p>
         </div>
       </div>
     </div>
@@ -90,6 +90,8 @@
                 <option value="QL-820NWB">QL-820NWB</option>
                 <option value="QL-1100">QL-1100</option>
                 <option value="QL-1110NWB">QL-1110NWB</option>
+                <option value="PT-P900W">PT-P900W</option>
+                <option value="PT-P950NW">PT-P950NW</option>
               </select>
             </div>
             <div class="form-group">
@@ -100,8 +102,23 @@
             <div class="form-group">
               <label for="printerDefaultLabelSize">Default Label Size:</label>
               <select class="form-control" id="printerDefaultLabelSize">
-                <option value="62" selected>62mm</option>
-                <option value="62red">62mm red</option>
+                <optgroup label="QL Label Sizes">
+                  <option value="62" selected>62mm</option>
+                  <option value="62red">62mm red</option>
+                  <option value="29">29mm</option>
+                  <option value="38">38mm</option>
+                  <option value="50">50mm</option>
+                  <option value="102">102mm</option>
+                </optgroup>
+                <optgroup label="P-touch Tape Sizes">
+                  <option value="3.5mm">3.5mm</option>
+                  <option value="6mm">6mm</option>
+                  <option value="9mm">9mm</option>
+                  <option value="12mm">12mm</option>
+                  <option value="18mm">18mm</option>
+                  <option value="24mm">24mm</option>
+                  <option value="36mm">36mm</option>
+                </optgroup>
               </select>
             </div>
           </form>
@@ -156,8 +173,23 @@
             <div class="form-group">
               <label for="newLabelSize">Default Label Size:</label>
               <select class="form-control" id="newLabelSize" required>
-                <option value="62">62mm</option>
-                <option value="62red">62mm red</option>
+                <optgroup label="QL Label Sizes">
+                  <option value="62">62mm</option>
+                  <option value="62red">62mm red</option>
+                  <option value="29">29mm</option>
+                  <option value="38">38mm</option>
+                  <option value="50">50mm</option>
+                  <option value="102">102mm</option>
+                </optgroup>
+                <optgroup label="P-touch Tape Sizes">
+                  <option value="3.5mm">3.5mm</option>
+                  <option value="6mm">6mm</option>
+                  <option value="9mm">9mm</option>
+                  <option value="12mm">12mm</option>
+                  <option value="18mm">18mm</option>
+                  <option value="24mm">24mm</option>
+                  <option value="36mm">36mm</option>
+                </optgroup>
               </select>
             </div>
             <input type="hidden" id="editLabelSizePrinterId">

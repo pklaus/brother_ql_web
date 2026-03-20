@@ -83,10 +83,14 @@ class PrinterDiscoveryService(ServiceListener):
 
                 # Extract model from service name or properties
                 model = self._extract_model(info)
-                if model.lower().startswith("ql-"):
+                if model.lower().startswith("ql-") or model.lower().startswith("pt-"):
                     printer_name = (
                         info.server.replace(".local.", "") if info.server else name
                     )
+
+                    # Brother printers advertise on various ports (515 LPD, 631 IPP)
+                    # but we use port 9100 (raw TCP) for the raster protocol
+                    port = 9100
 
                     printer_info = PrinterInfo(printer_name, address, port, model)
                     with self._lock:
@@ -135,7 +139,7 @@ class PrinterDiscoveryService(ServiceListener):
             name_lower = info.name.lower()
             server_lower = info.server.lower() if info.server else ""
 
-            brother_indicators = ["brother", "ql-", "bql"]
+            brother_indicators = ["brother", "ql-", "bql", "pt-"]
             return any(
                 indicator in name_lower or indicator in server_lower
                 for indicator in brother_indicators
@@ -165,6 +169,8 @@ class PrinterDiscoveryService(ServiceListener):
                 "ql-820nwb",
                 "ql-1100",
                 "ql-1110nwb",
+                "pt-p900w",
+                "pt-p950nw",
             ]
 
             for model in models:
@@ -176,6 +182,11 @@ class PrinterDiscoveryService(ServiceListener):
                 for key, value in info.properties.items():
                     if b"model" in key.lower() or b"ty" in key.lower():
                         return value.decode("utf-8", errors="ignore")
+
+            # Check if service name contains PT indicators
+            pt_indicators = ["pt-", "p-touch"]
+            if any(indicator in name for indicator in pt_indicators):
+                return "Brother PT"
 
             return "Brother QL"
         except:

@@ -371,6 +371,7 @@ def set_printer_default_label_size(printer_id):
 
         # Validate label size (basic validation)
         valid_sizes = [
+            # QL label sizes
             "12",
             "29",
             "38",
@@ -389,6 +390,14 @@ def set_printer_default_label_size(printer_id):
             "52x29",
             "62x29",
             "62x100",
+            # P-touch tape sizes
+            "3.5mm",
+            "6mm",
+            "9mm",
+            "12mm",
+            "18mm",
+            "24mm",
+            "36mm",
         ]
         if label_size not in valid_sizes:
             response.status = 400

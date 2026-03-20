@@ -5,6 +5,7 @@ import threading
 from typing import Dict, List, Optional, Any
 from printer_discovery import PrinterDiscoveryService, PrinterInfo
 from printer_service import LabelPrinterService
+from ptouch_printer_service import PTouchPrinterService
 
 logger = logging.getLogger(__name__)
 
@@ -103,9 +104,10 @@ class PrinterManager:
 
                 # Set default label size if not already set
                 if printer_id not in self.printer_default_label_sizes:
-                    self.printer_default_label_sizes[printer_id] = (
-                        "62"  # Default to 62mm
-                    )
+                    if printer_info.model.upper().startswith("PT-"):
+                        self.printer_default_label_sizes[printer_id] = "36mm"
+                    else:
+                        self.printer_default_label_sizes[printer_id] = "62"
 
                     self._save_printer_configs()
         except Exception as e:
@@ -145,13 +147,19 @@ class PrinterManager:
             if not printer_info:
                 return None
 
-            # Create and cache the service
-            printer_address = f"tcp://{printer_info.address}:9100"
-            service = LabelPrinterService(
-                printer_info.model,
-                printer_address,
-                self.backend_class,
-            )
+            # Create and cache the service based on printer type
+            printer_address = f"tcp://{printer_info.address}:{printer_info.port}"
+            if printer_info.model.upper().startswith("PT-"):
+                service = PTouchPrinterService(
+                    printer_info.model,
+                    printer_address,
+                )
+            else:
+                service = LabelPrinterService(
+                    printer_info.model,
+                    printer_address,
+                    self.backend_class,
+                )
             logger.info(f"Creating service for {display_name}")
             self.printer_services[display_name] = service
 
@@ -197,12 +205,18 @@ class PrinterManager:
             default_label_size = label_sizes_copy.get(printer_id, "62")
 
             # Check if printer is online
-            printer_address = f"tcp://{printer_info.address}:9100"
-            service = LabelPrinterService(
-                printer_info.model,
-                printer_address,
-                self.backend_class,
-            )
+            printer_address = f"tcp://{printer_info.address}:{printer_info.port}"
+            if printer_info.model.upper().startswith("PT-"):
+                service = PTouchPrinterService(
+                    printer_info.model,
+                    printer_address,
+                )
+            else:
+                service = LabelPrinterService(
+                    printer_info.model,
+                    printer_address,
+                    self.backend_class,
+                )
             is_online = service.is_online(timeout=0.5)
             
             # Skip offline printers unless explicitly requested

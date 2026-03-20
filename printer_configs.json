@@ -3,13 +3,15 @@
     "BRW2C9C58CC0B09": "Downstairs Printer",
     "BRW2C98116050A9": "Upstairs Printer",
     "Martins-MacBook-Air": "Martins-MacBook-Air",
-    "BRWEC9161D2FEB9": "BRWEC9161D2FEB9"
+    "BRWEC9161D2FEB9": "BRWEC9161D2FEB9",
+    "BRW849E56D39ACE": "BRW849E56D39ACE"
   },
   "default_label_sizes": {
     "BRW2C9C58CC0B09": "62",
     "BRW2C98116050A9": "62",
     "Martins-MacBook-Air": "62",
-    "BRWEC9161D2FEB9": "62"
+    "BRWEC9161D2FEB9": "62",
+    "BRW849E56D39ACE": "36mm"
   },
   "manual_printers": {}
 }
