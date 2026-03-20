@@ -1,3 +1,0 @@
-brother_ql
-bottle
-jinja2

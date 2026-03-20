@@ -1,0 +1,439 @@
+{% extends "base.jinja2" %}
+
+{% block jumbotron %}
+  <h1>Printer Management</h1>
+  <p>Manage your Brother QL label printers</p>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-8">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+            Available Printers
+          </h3>
+        </div>
+        <div class="panel-body">
+          <div id="printersList">
+            <!-- Printers will be loaded here -->
+          </div>
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addPrinterModal">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            Add Manual Printer
+          </button>
+          <button type="button" class="btn btn-info" onclick="refreshPrinters()">
+            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+            Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+            Printer Discovery
+          </h3>
+        </div>
+        <div class="panel-body">
+          <p>Printers are automatically discovered on your network using Zeroconf/Bonjour.</p>
+          <p>You can also manually add printers by clicking "Add Manual Printer".</p>
+          <p><strong>Supported models:</strong> Brother QL series (QL-500, QL-700, QL-800, etc.) and P-touch series (PT-P900W, PT-P950NW)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Printer Modal -->
+  <div class="modal fade" id="addPrinterModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Add Manual Printer</h4>
+        </div>
+        <div class="modal-body">
+          <form id="addPrinterForm">
+            <div class="form-group">
+              <label for="printerId">Printer ID:</label>
+              <input type="text" class="form-control" id="printerId" placeholder="my-printer-1" required>
+              <small class="form-text text-muted">Unique identifier for this printer</small>
+            </div>
+            <div class="form-group">
+              <label for="printerAddress">IP Address:</label>
+              <input type="text" class="form-control" id="printerAddress" placeholder="192.168.1.100" required>
+            </div>
+            <div class="form-group">
+              <label for="printerPort">Port:</label>
+              <input type="number" class="form-control" id="printerPort" value="9100" required>
+            </div>
+            <div class="form-group">
+              <label for="printerModel">Model:</label>
+              <select class="form-control" id="printerModel">
+                <option value="QL-500">QL-500</option>
+                <option value="QL-550">QL-550</option>
+                <option value="QL-560">QL-560</option>
+                <option value="QL-570">QL-570</option>
+                <option value="QL-580N">QL-580N</option>
+                <option value="QL-600">QL-600</option>
+                <option value="QL-650TD">QL-650TD</option>
+                <option value="QL-700" selected>QL-700</option>
+                <option value="QL-710W">QL-710W</option>
+                <option value="QL-720NW">QL-720NW</option>
+                <option value="QL-800">QL-800</option>
+                <option value="QL-810W">QL-810W</option>
+                <option value="QL-820NWB">QL-820NWB</option>
+                <option value="QL-1100">QL-1100</option>
+                <option value="QL-1110NWB">QL-1110NWB</option>
+                <option value="PT-P900W">PT-P900W</option>
+                <option value="PT-P950NW">PT-P950NW</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="printerDisplayName">Display Name:</label>
+              <input type="text" class="form-control" id="printerDisplayName" placeholder="Office Printer">
+              <small class="form-text text-muted">Friendly name for this printer (optional)</small>
+            </div>
+            <div class="form-group">
+              <label for="printerDefaultLabelSize">Default Label Size:</label>
+              <select class="form-control" id="printerDefaultLabelSize">
+                <optgroup label="QL Label Sizes">
+                  <option value="62" selected>62mm</option>
+                  <option value="62red">62mm red</option>
+                  <option value="29">29mm</option>
+                  <option value="38">38mm</option>
+                  <option value="50">50mm</option>
+                  <option value="102">102mm</option>
+                </optgroup>
+                <optgroup label="P-touch Tape Sizes">
+                  <option value="3.5mm">3.5mm</option>
+                  <option value="6mm">6mm</option>
+                  <option value="9mm">9mm</option>
+                  <option value="12mm">12mm</option>
+                  <option value="18mm">18mm</option>
+                  <option value="24mm">24mm</option>
+                  <option value="36mm">36mm</option>
+                </optgroup>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="addPrinter()">Add Printer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Display Name Modal -->
+  <div class="modal fade" id="editDisplayNameModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Edit Display Name</h4>
+        </div>
+        <div class="modal-body">
+          <form id="editDisplayNameForm">
+            <div class="form-group">
+              <label for="newDisplayName">Display Name:</label>
+              <input type="text" class="form-control" id="newDisplayName" required>
+            </div>
+            <input type="hidden" id="editPrinterId">
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="updateDisplayName()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Default Label Size Modal -->
+  <div class="modal fade" id="editLabelSizeModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Edit Default Label Size</h4>
+        </div>
+        <div class="modal-body">
+          <form id="editLabelSizeForm">
+            <div class="form-group">
+              <label for="newLabelSize">Default Label Size:</label>
+              <select class="form-control" id="newLabelSize" required>
+                <optgroup label="QL Label Sizes">
+                  <option value="62">62mm</option>
+                  <option value="62red">62mm red</option>
+                  <option value="29">29mm</option>
+                  <option value="38">38mm</option>
+                  <option value="50">50mm</option>
+                  <option value="102">102mm</option>
+                </optgroup>
+                <optgroup label="P-touch Tape Sizes">
+                  <option value="3.5mm">3.5mm</option>
+                  <option value="6mm">6mm</option>
+                  <option value="9mm">9mm</option>
+                  <option value="12mm">12mm</option>
+                  <option value="18mm">18mm</option>
+                  <option value="24mm">24mm</option>
+                  <option value="36mm">36mm</option>
+                </optgroup>
+              </select>
+            </div>
+            <input type="hidden" id="editLabelSizePrinterId">
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="updateLabelSize()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block javascript %}
+function loadPrinters() {
+  $.ajax({
+    type: 'GET',
+    url: '/api/printers',
+    success: function(data) {
+      const printers = data.printers || [];
+      let html = '';
+      
+      if (printers.length === 0) {
+        html = '<div class="alert alert-info">No printers discovered yet. Click "Refresh" to scan for printers, or add a manual printer.</div>';
+      } else {
+        html = '<div class="table-responsive"><table class="table table-striped">';
+        html += '<thead><tr><th>Display Name</th><th>Address</th><th>Model</th><th>Default Size</th><th>Status</th><th>Actions</th></tr></thead>';
+        html += '<tbody>';
+        
+        printers.forEach(function(printer) {
+          const statusBadge = getStatusBadge(printer.status);
+          const actionButtons = getActionButtons(printer);
+          
+          html += `<tr>
+            <td><strong>${printer.display_name}</strong></td>
+            <td>${printer.address}:${printer.port}</td>
+            <td>${printer.model}</td>
+            <td>
+              <span class="label-size-display" data-printer-id="${printer.printer_id}">${printer.default_label_size}</span>
+              <button class="btn btn-xs btn-link" onclick="editLabelSize('${printer.printer_id}', '${printer.default_label_size}')" title="Edit default label size">
+                <span class="glyphicon glyphicon-pencil"></span>
+              </button>
+            </td>
+            <td>${statusBadge}</td>
+            <td>${actionButtons}</td>
+          </tr>`;
+        });
+        
+        html += '</tbody></table></div>';
+      }
+      
+      $('#printersList').html(html);
+    },
+    error: function(xhr, status, error) {
+      $('#printersList').html('<div class="alert alert-danger">Error loading printers: ' + error + '</div>');
+    }
+  });
+}
+
+function getStatusBadge(status) {
+  switch(status) {
+    case 'Manual': return '<span class="label label-primary">Manual</span>';
+    case 'Discovered': return '<span class="label label-success">Discovered</span>';
+    case 'File': return '<span class="label label-info">USB/Serial</span>';
+    default: return '<span class="label label-default">' + status + '</span>';
+  }
+}
+
+function getActionButtons(printer) {
+  let buttons = `<button class="btn btn-sm btn-success" onclick="testPrint('${printer.printer_id}', '${printer.display_name}')">
+    <span class="glyphicon glyphicon-print"></span> Test Print
+  </button> `;
+  
+  buttons += `<button class="btn btn-sm btn-default" onclick="editDisplayName('${printer.printer_id}', '${printer.display_name}')">
+    <span class="glyphicon glyphicon-edit"></span> Rename
+  </button>`;
+  
+  if (printer.status === 'Manual') {
+    buttons += ` <button class="btn btn-sm btn-danger" onclick="removePrinter('${printer.printer_id}')">
+      <span class="glyphicon glyphicon-trash"></span> Remove
+    </button>`;
+  }
+  
+  return buttons;
+}
+
+function refreshPrinters() {
+  loadPrinters();
+}
+
+function testPrint(printerId, displayName) {
+  if (!confirm(`Print a test label on "${displayName}"?`)) {
+    return;
+  }
+  
+  // Show loading state
+  const button = event.target.closest('button');
+  const originalHtml = button.innerHTML;
+  button.innerHTML = '<span class="glyphicon glyphicon-refresh glyphicon-spin"></span> Printing...';
+  button.disabled = true;
+  
+  $.ajax({
+    type: 'POST',
+    url: '/api/printers/' + encodeURIComponent(printerId) + '/test-print',
+    success: function(response) {
+      alert('Test print successful on ' + displayName);
+      // Restore button
+      button.innerHTML = originalHtml;
+      button.disabled = false;
+    },
+    error: function(xhr, status, error) {
+      alert('Error printing test label: ' + (xhr.responseJSON ? xhr.responseJSON.error : error));
+      // Restore button
+      button.innerHTML = originalHtml;
+      button.disabled = false;
+    }
+  });
+}
+
+function addPrinter() {
+  const printerId = $('#printerId').val();
+  const address = $('#printerAddress').val();
+  const port = parseInt($('#printerPort').val());
+  const model = $('#printerModel').val();
+  const displayName = $('#printerDisplayName').val();
+  const defaultLabelSize = $('#printerDefaultLabelSize').val();
+  
+  if (!printerId || !address) {
+    alert('Please fill in all required fields');
+    return;
+  }
+  
+  const data = {
+    printer_id: printerId,
+    address: address,
+    port: port,
+    model: model,
+    default_label_size: defaultLabelSize
+  };
+  
+  if (displayName) {
+    data.display_name = displayName;
+  }
+  
+  $.ajax({
+    type: 'POST',
+    url: '/api/printers',
+    contentType: 'application/json',
+    data: JSON.stringify(data),
+    success: function(response) {
+      $('#addPrinterModal').modal('hide');
+      $('#addPrinterForm')[0].reset();
+      loadPrinters();
+      alert('Printer added successfully');
+    },
+    error: function(xhr, status, error) {
+      alert('Error adding printer: ' + (xhr.responseJSON ? xhr.responseJSON.error : error));
+    }
+  });
+}
+
+function editDisplayName(printerId, currentName) {
+  $('#editPrinterId').val(printerId);
+  $('#newDisplayName').val(currentName);
+  $('#editDisplayNameModal').modal('show');
+}
+
+function updateDisplayName() {
+  const printerId = $('#editPrinterId').val();
+  const newDisplayName = $('#newDisplayName').val();
+  
+  if (!newDisplayName) {
+    alert('Please enter a display name');
+    return;
+  }
+  
+  $.ajax({
+    type: 'POST',
+    url: '/api/printers/' + encodeURIComponent(printerId) + '/display-name',
+    contentType: 'application/json',
+    data: JSON.stringify({display_name: newDisplayName}),
+    success: function(response) {
+      $('#editDisplayNameModal').modal('hide');
+      loadPrinters();
+      alert('Display name updated successfully');
+    },
+    error: function(xhr, status, error) {
+      alert('Error updating display name: ' + (xhr.responseJSON ? xhr.responseJSON.error : error));
+    }
+  });
+}
+
+function removePrinter(printerId) {
+  if (!confirm('Are you sure you want to remove this printer?')) {
+    return;
+  }
+  
+  $.ajax({
+    type: 'POST',
+    url: '/api/printers/' + encodeURIComponent(printerId) + '/remove',
+    success: function(response) {
+      loadPrinters();
+      alert('Printer removed successfully');
+    },
+    error: function(xhr, status, error) {
+      alert('Error removing printer: ' + (xhr.responseJSON ? xhr.responseJSON.error : error));
+    }
+  });
+}
+
+function editLabelSize(printerId, currentSize) {
+  $('#editLabelSizePrinterId').val(printerId);
+  $('#newLabelSize').val(currentSize);
+  $('#editLabelSizeModal').modal('show');
+}
+
+function updateLabelSize() {
+  const printerId = $('#editLabelSizePrinterId').val();
+  const newLabelSize = $('#newLabelSize').val();
+  
+  if (!newLabelSize) {
+    alert('Please select a label size');
+    return;
+  }
+  
+  $.ajax({
+    type: 'POST',
+    url: '/api/printers/' + encodeURIComponent(printerId) + '/default-label-size',
+    contentType: 'application/json',
+    data: JSON.stringify({default_label_size: newLabelSize}),
+    success: function(response) {
+      $('#editLabelSizeModal').modal('hide');
+      loadPrinters();
+      alert('Default label size updated successfully');
+    },
+    error: function(xhr, status, error) {
+      alert('Error updating label size: ' + (xhr.responseJSON ? xhr.responseJSON.error : error));
+    }
+  });
+}
+
+// Load printers on page load
+$(document).ready(function() {
+  loadPrinters();
+});
+{% endblock %} 
