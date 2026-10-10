@@ -5,7 +5,7 @@
 This is a web service to print labels on Brother QL label printers.
 """
 
-import sys, logging, random, json, argparse
+import sys, logging, random, json, argparse, math
 from io import BytesIO
 
 from bottle import run, route, get, post, response, request, jinja2_view as view, static_file, redirect
@@ -116,8 +116,10 @@ def create_label_im(text, **kwargs):
         if line == '': line = ' '
         lines.append(line)
     text = '\n'.join(lines)
-    linesize = im_font.getsize(text)
-    textsize = draw.multiline_textsize(text, font=im_font)
+    # multiline_textsize() was removed in Pillow 10; the bbox measured from
+    # the origin (right, bottom) matches what it used to return:
+    bbox = draw.multiline_textbbox((0, 0), text, font=im_font, align=kwargs['align'])
+    textsize = math.ceil(bbox[2]), math.ceil(bbox[3])
     width, height = kwargs['width'], kwargs['height']
     if kwargs['orientation'] == 'standard':
         if label_type in (ENDLESS_LABEL,):
