@@ -28,10 +28,10 @@
               </select>
               <label for="orientation" style="margin-top: 10px; margin-bottom: 0">Label Orientation:</label>
               <div class="radio" style="margin-top: 5px;">
-                <label><input type="radio" onchange="preview()" name="orientation" value="standard" {% if default_orientation == 'standard' %}checked{% endif %}>Standard</label>
+                <label><input type="radio" onchange="preview()" name="orientation" value="standard" {% if label.DEFAULT_ORIENTATION == 'standard' %}checked{% endif %}>Standard</label>
               </div>
               <div class="radio">
-                <label><input type="radio" onchange="preview()" name="orientation" value="rotated" {% if default_orientation == 'rotated' %}checked{% endif %}>Rotated</label>
+                <label><input type="radio" onchange="preview()" name="orientation" value="rotated" {% if label.DEFAULT_ORIENTATION == 'rotated' %}checked{% endif %}>Rotated</label>
               </div>
               </div> <!-- class="chooser panel-body" -->
             </div>
