@@ -76,7 +76,16 @@ All in all, the web server offers:
 
 * a Web GUI allowing you to print your labels at `/labeldesigner`,
 * an API at `/api/print/text?text=Your_Text&font_size=100&font_family=Minion%20Pro%20(%20Semibold%20)`
-  to print a label containing 'Your Text' with the specified font properties.
+  to print a label containing 'Your Text' with the specified font properties,
+* an API at `/api/print/image` to print a ready-made image (for example a QR code label
+  rendered by another program), sent as the multipart form field `image`:
+
+      curl -F image=@label.png -F label_size=62 http://localhost:8013/api/print/image
+
+  Optional form fields are `label_size` (defaults to the configured size), `rotate`
+  (`auto`, `0`, `90`, `180` or `270`; default `0`), `threshold` (0-100, default 70) and
+  `cut` (`true`/`false`). The image is scaled to the label's printable width, so for
+  full resolution make it exactly that wide (696 px for 62 mm endless labels).
 
 ### License
 

@@ -220,6 +220,80 @@ def print_text():
     if DEBUG: return_dict['data'] = str(qlr.data)
     return return_dict
 
+@post('/api/print/image')
+def print_image():
+    """
+    API to print a ready-made image (for example a QR code label
+    rendered by another application)
+
+    Send the image as multipart form field "image". Optional form fields:
+    label_size (defaults to the configured default size),
+    rotate ("auto", "0", "90", "180" or "270"; default "0"),
+    threshold (0-100, default 70) and cut ("true"/"false", default "true").
+
+    brother_ql scales the image to the printable width of the label, so an
+    image of exactly that width (for example 696 px for 62 mm endless labels)
+    prints at full resolution.
+
+    returns: JSON
+    """
+
+    return_dict = {'success': False}
+
+    upload = request.files.get('image')
+    if upload is None:
+        return_dict['error'] = 'Please provide the label as multipart form field "image"'
+        return return_dict
+
+    try:
+        im = Image.open(upload.file)
+        im.load()
+    except Exception as e:
+        return_dict['error'] = 'Could not read the image: {}'.format(e)
+        return return_dict
+
+    label_size = request.forms.get('label_size') or CONFIG['LABEL']['DEFAULT_SIZE']
+    if label_size not in label_sizes:
+        return_dict['error'] = 'Unknown label_size: {}'.format(label_size)
+        return return_dict
+
+    rotate = request.forms.get('rotate', '0')
+    if rotate not in ('auto', '0', '90', '180', '270'):
+        return_dict['error'] = 'rotate must be one of auto, 0, 90, 180 or 270'
+        return return_dict
+
+    try:
+        threshold = int(request.forms.get('threshold', 70))
+    except ValueError:
+        return_dict['error'] = 'threshold must be an integer'
+        return return_dict
+
+    cut = request.forms.get('cut', 'true').lower() != 'false'
+
+    qlr = BrotherQLRaster(CONFIG['PRINTER']['MODEL'])
+    red = 'red' in label_size
+    try:
+        create_label(qlr, im.convert('RGB'), label_size, red=red, threshold=threshold, cut=cut, rotate=rotate)
+    except ValueError as e:
+        # e.g. a die-cut label size that does not match the image dimensions
+        return_dict['error'] = str(e)
+        return return_dict
+
+    if not DEBUG:
+        try:
+            be = BACKEND_CLASS(CONFIG['PRINTER']['PRINTER'])
+            be.write(qlr.data)
+            be.dispose()
+            del be
+        except Exception as e:
+            return_dict['message'] = str(e)
+            logger.warning('Exception happened: %s', e)
+            return return_dict
+
+    return_dict['success'] = True
+    if DEBUG: return_dict['data'] = str(qlr.data)
+    return return_dict
+
 def main():
     global DEBUG, FONTS, BACKEND_CLASS, CONFIG
     parser = argparse.ArgumentParser(description=__doc__)
